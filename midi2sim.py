@@ -63,6 +63,31 @@ def __handle_except(e):
     return -1
 
 
+def config_bootstrap():
+    """Setup handlers and more from config :) """
+
+    # Read from config and get which port (MIDI controller or device)
+    # is it gonna read messages from
+    midi.set_port(config.MIDI_PORT)
+
+    log.info("Setting MIDI handlers from config ...")
+    log.info(f'{len(config.MIDI_CC_HANDLERS)} CC handler(s) found on config ...')
+    log.info(
+        f'{len(config.MIDI_NOTE_HANDLERS)} NOTE handler(s) found on config ...')
+
+    # Set CC handlers from config
+    # They are expected to be located within the MIDI_CC_HANDLERS dictionary
+    for cc, handler in config.MIDI_CC_HANDLERS.items():
+        log.info(f'CC # {cc}: found handler: {handler.__name__}')
+        midi.set_cc_handler(cc=cc, handler=handler)
+
+    # Set NOTE handlers from config
+    # They are expected to be located within the MIDI_NOTE_HANDLERS dictionary
+    for note, handler in config.MIDI_NOTE_HANDLERS.items():
+        log.info(f'NOTE # {note}: found handler: {handler.__name__}')
+        midi.set_note_handler(note=note, handler=handler)
+
+
 def event_loop() -> None:
     """
     Main event loop
@@ -75,18 +100,12 @@ def event_loop() -> None:
     # Initialize MIDI, first of all
     midi.bootstrap()
 
-    # Read from config and get which port (MIDI controller or device)
-    # is it gonna read messages from
-    midi.set_port(config.MIDI_PORT)
-
-    log.info("Setting CC handlers from config ...")
-    for cc, handler in config.MIDI_CC_HANDLERS.items():
-        log.info(f'CC # {cc}: found handler: {handler.__name__}')
-        midi.set_cc_handler(cc=cc, handler=handler)
-
-    log.info(f'Listening for MIDI messages on {config.MIDI_PORT} ...')
+    # Read config
+    config_bootstrap()
 
     # Initialize the MIDI message pump
+    log.info(f'MIDI device = {config.MIDI_PORT} ...')
+    log.info("Listening for messages ... ")
     midi.message_pump()
 
 

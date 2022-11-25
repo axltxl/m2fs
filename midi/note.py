@@ -8,7 +8,8 @@ __note_message_handlers = {}
 
 
 def __null_note_message_handler(msg: dict):
-    """Default CC handler"""
+    """Default note handler"""
+    log.info(f'NOTE {msg.id}: no handler set')
     return (MIDI_MSG_SUCCESS, "")
 
 
