@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 import mido
-from log import log
+import log
 
+MIDI_MSG_SUCCESS = 0
+MIDI_MSG_FAILURE = -1
+
+# FIXME: doc me
+__midi_port = ""
 
 # FIXME
+# FIXME: doc me
 CC_000 = 0
 CC_001 = 1
 CC_002 = 2
@@ -134,22 +140,37 @@ CC_126 = 126
 CC_127 = 127
 
 
+# FIXME: doc me
 def __null_message_handler(msg: dict):
-    log(log.LOG_LVL_INFO, "__null_message_callback")
-    pass
+    log.info("__null_message_callback")
 
 
 # FIXME: doc me
-__midi_message_map = {}
+__midi_message_handlers = {}
 for cc in range(0, 128):
-    __midi_message_map[cc] = __null_message_handler
+    __midi_message_handlers[cc] = __null_message_handler
 
 # Make sure we're using rtmidi backend
 mido.set_backend('mido.backends.rtmidi')
 
 
-def map_cc(cc: int, callback: function):
-    __midi_message_map[cc] = callback
+# FIXME: doc me
+def map_cc_to_handler(cc: int, callback):
+    # __midi_message_handlers[cc] = function(msg):
+    #                 callback
+    def wrapper(msg):
+        log.info("wrapper - something")
+        r = callback(msg)
+        if r != 0:
+            log.warn("wrapper - something when wrong dealing with this")
+        return r
+
+    __midi_message_handlers[cc] = wrapper
+
+
+def set_port(port: str) -> None:
+    global __midi_port
+    __midi_port = port
 
 
 def ls_ports() -> dict:
@@ -162,8 +183,18 @@ def ls_ports() -> dict:
     }
 
 
-def message_pump(midi_callback_map: dict) -> int:
-    with mido.open_ioport("FIXME") as port:
+# FIXME: doc me
+def __handle_msg(msg) -> int:
+    callback_msg = {}
+    if msg.is_cc():
+        callback_msg['type'] = 'cc'
+
+    callback_msg['value'] = msg.value
+    return __midi_message_handlers[msg.cc](callback_msg)
+
+
+def message_pump() -> None:
+    with mido.open_ioport(__midi_port) as port:
         for msg in port:
-            callback(msg)
-    return 0
+            if __handle_msg(msg):
+                log.warn("Something ain't right FIXME")

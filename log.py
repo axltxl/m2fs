@@ -13,3 +13,15 @@ def log(level: int, msg: str) -> None:
     }
 
     print(f"[{level_str[level]}] - {msg}")
+
+
+def info(msg: str) -> None:
+    log(LOG_LVL_INFO, msg)
+
+
+def warn(msg: str) -> None:
+    log(LOG_LVL_WARN, msg)
+
+
+def error(msg: str) -> None:
+    log(LOG_LVL_FATAL, msg)
