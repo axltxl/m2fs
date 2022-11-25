@@ -142,16 +142,55 @@ CC_127 = 127
 
 # FIXME: doc me
 def __null_message_handler(msg: dict):
-    log.info("__null_message_callback")
+    return 0
 
 
 # FIXME: doc me
 __midi_message_handlers = {}
-for cc in range(0, 128):
-    __midi_message_handlers[cc] = __null_message_handler
+
 
 # Make sure we're using rtmidi backend
 mido.set_backend('mido.backends.rtmidi')
+
+
+class Message:
+    TYPE_CC = 0
+    TYPE_NOTE = 1
+
+    def __init__(self, *, type, id=0, value=0, channel=0):
+        self.type = type
+        self.id = id
+        self.channel = channel
+
+    def __str__(self) -> str:
+        return f'Message(type={self.type}, id={self.id})'
+
+
+# FIXME: doc me
+class ControlChangeMessage(Message):
+
+    def __init__(self, *, id=0, value=0, channel=0):
+        super().__init__(type=Message.TYPE_CC, id=id, value=value, channel=channel)
+        self.value = value
+
+    def __str__(self) -> str:
+        return f'ControlChangeMessage(type=CC, id={self.id}, value={self.value}, channel={self.channel})'
+
+
+# FIXME: doc me
+class NoteMessage(Message):
+
+    def __init__(self, *, on=False, id=0, value=0, channel=0, velocity=0):
+        super().__init__(type=Message.TYPE_NOTE, id=id, value=value, channel=channel)
+        self.on = on
+        self.velocity = velocity
+
+    @property
+    def off(self) -> bool:
+        return not self.on
+
+    def __str__(self) -> str:
+        return f'NoteMessage(type=NOTE, id={self.id}, velocity={self.velocity}, channel={self.channel}, on={self.on})'
 
 
 # FIXME: doc me
@@ -159,10 +198,10 @@ def map_cc_to_handler(cc: int, callback):
     # __midi_message_handlers[cc] = function(msg):
     #                 callback
     def wrapper(msg):
-        log.info("wrapper - something")
+        log.info(msg)
         r = callback(msg)
         if r != 0:
-            log.warn("wrapper - something when wrong dealing with this")
+            log.warn("FIXME: wrapper - something when wrong dealing with this")
         return r
 
     __midi_message_handlers[cc] = wrapper
@@ -184,16 +223,34 @@ def ls_ports() -> dict:
 
 
 # FIXME: doc me
-def __handle_msg(msg) -> int:
-    callback_msg = {}
-    if msg.is_cc():
-        callback_msg['type'] = 'cc'
+def __get_midi_message(msg) -> Message:
+    callback_msg = None
+    if msg.type == 'control_change' or msg.type == 'note_on' or msg.type == 'note_off':
+        if msg.type == 'control_change':
+            callback_msg = ControlChangeMessage(id=msg.control)
+            callback_msg.value = msg.value
+        else:
+            callback_msg = NoteMessage(id=msg.note, velocity=msg.velocity)
+        callback_msg.channel = msg.channel
+    return callback_msg
 
-    callback_msg['value'] = msg.value
-    return __midi_message_handlers[msg.cc](callback_msg)
+
+# FIXME: doc me
+def __handle_msg(msg) -> int:
+    m = __get_midi_message(msg)
+    if m is not None:
+        return __midi_message_handlers[msg.control](m)
+    log.warn(f'(mido) {msg.type}: MIDI message type not supported')
 
 
 def message_pump() -> None:
+    # FIXME: needs better placement
+    for cc in range(0, 128):
+        log.info(f'Setting handler for MIDI CC {cc} ...')
+        map_cc_to_handler(cc, __null_message_handler)
+    log.info("All handlers set and ready :) ...")
+
+    # FIXME: doc me
     with mido.open_ioport(__midi_port) as port:
         for msg in port:
             if __handle_msg(msg):
