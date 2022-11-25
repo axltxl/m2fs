@@ -170,12 +170,11 @@ def bootstrap() -> None:
     """Bootstrap CC-related things, mostly initializing handlers"""
 
     for cc in range(CC_MIN, CC_MAX + 1):
-        log.info(f'Setting handler for MIDI CC # {cc} ...')
-        map_to_handler(cc=cc, callback=__null_cc_message_handler)
-    log.info("All default handlers set and ready :) ...")
+        log.info(f'Setting default handler for MIDI CC # {cc} ...')
+        set_handler(cc=cc, callback=__null_cc_message_handler)
 
 
-def map_to_handler(*, cc: int, callback):
+def set_handler(*, cc: int, callback):
     """Map a handler to changes done on a CC"""
 
     # Decorator pattern is used mostly

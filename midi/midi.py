@@ -8,7 +8,11 @@ from .cc import (
     bootstrap as cc_bootstrap,
     get_handler as cc_get_handler
 )
-from .note import NoteMessage
+from .note import (
+    NoteMessage,
+    bootstrap as note_bootstrap,
+    get_handler as note_get_handler,
+)
 
 # MIDI port (device) to be used is set here
 __midi_port = ""
@@ -39,14 +43,27 @@ def list_ports() -> dict:
 
 
 def __get_midi_message(msg) -> Message:
-    """Create a Message-based object from a mido MIDI message"""
+    """
+    Create a Message-based object from a mido MIDI message.
+    Returns None if message type is not supported
+    """
     callback_msg = None
-    if msg.type == 'control_change' or msg.type == 'note_on' or msg.type == 'note_off':
+
+    if msg.type == 'control_change'  \
+            or msg.type == 'note_on' or msg.type == 'note_off':
+
+        # Convert CC messages to proper ControlChangeMessage
         if msg.type == 'control_change':
             callback_msg = ControlChangeMessage(id=msg.control)
             callback_msg.value = msg.value
-        else:
-            callback_msg = NoteMessage(id=msg.note, velocity=msg.velocity)
+
+        # Convert note messages from mido to proper NoteMessage
+        elif msg.type == 'note_on' or msg.type == 'note_off':
+            note_on = False if msg.type == 'note_off' else True
+            callback_msg = NoteMessage(
+                id=msg.note, velocity=msg.velocity, on=note_on)
+
+        # Set channel appropriately (this applies to all cases)
         callback_msg.channel = msg.channel
     return callback_msg
 
@@ -63,6 +80,8 @@ def __handle_msg(msg) -> None:
     if m is not None:
         if m.type == Message.TYPE_CC:
             cc_get_handler(cc=m.id)(m)
+        elif m.type == Message.TYPE_NOTE:
+            note_get_handler(note=m.id)(m)
         else:
             log.warn(f'(mido) {msg.type}: MIDI message type not supported')
 
@@ -76,6 +95,7 @@ def message_pump() -> None:
     # Initialize MIDI, first of all
     __bootstrap()
     cc_bootstrap()
+    note_bootstrap()
 
     # Open the port for input and output and process messages
     with mido.open_ioport(__midi_port) as port:
