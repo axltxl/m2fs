@@ -3,6 +3,7 @@
 import sys
 import os
 import traceback
+
 import config
 import log
 import midi
