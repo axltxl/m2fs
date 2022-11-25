@@ -72,9 +72,18 @@ def event_loop() -> None:
     with them
     """
 
+    # Initialize MIDI, first of all
+    midi.bootstrap()
+
     # Read from config and get which port (MIDI controller or device)
     # is it gonna read messages from
     midi.set_port(config.MIDI_PORT)
+
+    log.info("Setting CC handlers from config ...")
+    for cc, handler in config.MIDI_CC_HANDLERS.items():
+        log.info(f'CC # {cc}: found handler: {handler.__name__}')
+        midi.set_cc_handler(cc=cc, handler=handler)
+
     log.info(f'Listening for MIDI messages on {config.MIDI_PORT} ...')
 
     # Initialize the MIDI message pump

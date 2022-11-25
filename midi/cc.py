@@ -9,6 +9,7 @@ __cc_message_handlers = {}
 
 def __null_cc_message_handler(msg: dict):
     """Default CC handler"""
+    log.info(f'CC {msg.id}: no handler set')
     return (MIDI_MSG_SUCCESS, "")
 
 
@@ -157,7 +158,7 @@ class ControlChangeMessage(Message):
         self.value = value
 
     def __str__(self) -> str:
-        return f'ControlChangeMessage(type=CC, id={self.id}, value={self.value}, channel={self.channel})'
+        return f'ControlChangeMessage(id={self.id}, value={self.value}, channel={self.channel})'
 
 
 def get_handler(*, cc):
@@ -171,17 +172,17 @@ def bootstrap() -> None:
 
     for cc in range(CC_MIN, CC_MAX + 1):
         log.info(f'Setting default handler for MIDI CC # {cc} ...')
-        set_handler(cc=cc, callback=__null_cc_message_handler)
+        set_handler(cc=cc, handler=__null_cc_message_handler)
 
 
-def set_handler(*, cc: int, callback):
+def set_handler(*, cc: int, handler):
     """Map a handler to changes done on a CC"""
 
     # Decorator pattern is used mostly
     # for logging calls to a handler by default
     def wrapper(msg):
         log.info(msg)
-        result, reason = callback(msg)
+        result, reason = handler(msg)
         if result != 0:
             log.warn(
                 f'[CC#{cc}] - handler did not return successfully: {reason}')

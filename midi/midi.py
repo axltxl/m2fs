@@ -18,11 +18,15 @@ from .note import (
 __midi_port = ""
 
 
-def __bootstrap():
+def bootstrap():
     """Initialize MIDI backend (mido)"""
 
     # Make sure we're using rtmidi backend
     mido.set_backend('mido.backends.rtmidi')
+
+    # Initialize CC and Note subsystems
+    cc_bootstrap()
+    note_bootstrap()
 
 
 def set_port(port: str) -> None:
@@ -47,25 +51,25 @@ def __get_midi_message(msg) -> Message:
     Create a Message-based object from a mido MIDI message.
     Returns None if message type is not supported
     """
-    callback_msg = None
+    handler_msg = None
 
     if msg.type == 'control_change'  \
             or msg.type == 'note_on' or msg.type == 'note_off':
 
         # Convert CC messages to proper ControlChangeMessage
         if msg.type == 'control_change':
-            callback_msg = ControlChangeMessage(id=msg.control)
-            callback_msg.value = msg.value
+            handler_msg = ControlChangeMessage(id=msg.control)
+            handler_msg.value = msg.value
 
         # Convert note messages from mido to proper NoteMessage
         elif msg.type == 'note_on' or msg.type == 'note_off':
             note_on = False if msg.type == 'note_off' else True
-            callback_msg = NoteMessage(
+            handler_msg = NoteMessage(
                 id=msg.note, velocity=msg.velocity, on=note_on)
 
         # Set channel appropriately (this applies to all cases)
-        callback_msg.channel = msg.channel
-    return callback_msg
+        handler_msg.channel = msg.channel
+    return handler_msg
 
 
 def __handle_msg(msg) -> None:
@@ -91,11 +95,6 @@ def message_pump() -> None:
 
     if not len(__midi_port):
         raise Exception("MIDI port has not been set!")
-
-    # Initialize MIDI, first of all
-    __bootstrap()
-    cc_bootstrap()
-    note_bootstrap()
 
     # Open the port for input and output and process messages
     with mido.open_ioport(__midi_port) as port:
