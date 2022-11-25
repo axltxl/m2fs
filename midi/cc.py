@@ -3,18 +3,16 @@
 import log
 from .message import Message, MIDI_MSG_SUCCESS
 
-# FIXME: doc me
+# List of CC handlers (functions)
 __cc_message_handlers = {}
-
-# FIXME: doc me
 
 
 def __null_cc_message_handler(msg: dict):
-    return MIDI_MSG_SUCCESS
+    """Default CC handler"""
+    return (MIDI_MSG_SUCCESS, "")
 
 
-# FIXME
-# FIXME: doc me
+# List of all MIDI CCs
 CC_000 = 0
 CC_001 = 1
 CC_002 = 2
@@ -146,10 +144,13 @@ CC_127 = 127
 CC_MIN = CC_000
 CC_MAX = CC_127
 
-# FIXME: doc me
-
 
 class ControlChangeMessage(Message):
+    """
+    MIDI CC as a class
+
+    It contains the usual, plus a value pertaining to a CC
+    """
 
     def __init__(self, *, id=0, value=0, channel=0):
         super().__init__(type=Message.TYPE_CC, id=id, value=value, channel=channel)
@@ -158,29 +159,33 @@ class ControlChangeMessage(Message):
     def __str__(self) -> str:
         return f'ControlChangeMessage(type=CC, id={self.id}, value={self.value}, channel={self.channel})'
 
-# FIXME: doc me
-
 
 def get_handler(*, cc):
+    """ Get a handler for a particular CC """
+
     return __cc_message_handlers[cc]
 
 
-# FIXME: doc me
 def bootstrap() -> None:
-    # FIXME: needs better placement
+    """Bootstrap CC-related things, mostly initializing handlers"""
+
     for cc in range(CC_MIN, CC_MAX + 1):
-        log.info(f'Setting handler for MIDI CC {cc} ...')
+        log.info(f'Setting handler for MIDI CC # {cc} ...')
         map_to_handler(cc=cc, callback=__null_cc_message_handler)
-    log.info("All handlers set and ready :) ...")
+    log.info("All default handlers set and ready :) ...")
 
 
-# FIXME: doc me
 def map_to_handler(*, cc: int, callback):
+    """Map a handler to changes done on a CC"""
+
+    # Decorator pattern is used mostly
+    # for logging calls to a handler by default
     def wrapper(msg):
         log.info(msg)
-        r = callback(msg)
-        if r != 0:
-            log.warn("FIXME: wrapper - something when wrong dealing with this")
-        return r
+        result, reason = callback(msg)
+        if result != 0:
+            log.warn(
+                f'[CC#{cc}] - handler did not return successfully: {reason}')
+        return result
 
     __cc_message_handlers[cc] = wrapper

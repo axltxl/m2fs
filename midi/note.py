@@ -2,10 +2,12 @@
 
 from .message import Message
 
-# FIXME: doc me
-
 
 class NoteMessage(Message):
+    """
+    A MIDI note message as a class.
+    It covers both note_on, and note_off messages
+    """
 
     def __init__(self, *, on=False, id=0, value=0, channel=0, velocity=0):
         super().__init__(type=Message.TYPE_NOTE, id=id, value=value, channel=channel)

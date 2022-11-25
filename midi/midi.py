@@ -10,17 +10,20 @@ from .cc import (
 )
 from .note import NoteMessage
 
-# FIXME: doc me
+# MIDI port (device) to be used is set here
 __midi_port = ""
 
-# FIXME: doc me
 
+def __bootstrap():
+    """Initialize MIDI backend (mido)"""
 
-# Make sure we're using rtmidi backend
-mido.set_backend('mido.backends.rtmidi')
+    # Make sure we're using rtmidi backend
+    mido.set_backend('mido.backends.rtmidi')
 
 
 def set_port(port: str) -> None:
+    """Set MIDI port (device) to use"""
+
     global __midi_port
     __midi_port = port
 
@@ -35,8 +38,8 @@ def list_ports() -> dict:
     }
 
 
-# FIXME: doc me
 def __get_midi_message(msg) -> Message:
+    """Create a Message-based object from a mido MIDI message"""
     callback_msg = None
     if msg.type == 'control_change' or msg.type == 'note_on' or msg.type == 'note_off':
         if msg.type == 'control_change':
@@ -48,21 +51,33 @@ def __get_midi_message(msg) -> Message:
     return callback_msg
 
 
-# FIXME: doc me
-def __handle_msg(msg) -> int:
+def __handle_msg(msg) -> None:
+    """Handle a raw mido MIDI message via a handler"""
+
+    # Get a Message
     m = __get_midi_message(msg)
+
+    # ... and process it accordingly depending on its type
+    # NOTE: at the time of writing, only MIDI CC and NOTE_ON/NOTE_OFF messages
+    # are supported
     if m is not None:
         if m.type == Message.TYPE_CC:
-            return cc_get_handler(cc=m.id)(m)
-    log.warn(f'(mido) {msg.type}: MIDI message type not supported')
+            cc_get_handler(cc=m.id)(m)
+        else:
+            log.warn(f'(mido) {msg.type}: MIDI message type not supported')
 
 
 def message_pump() -> None:
-    # FIXME: doc me
+    """Main MIDI event message pump"""
+
+    if not len(__midi_port):
+        raise Exception("MIDI port has not been set!")
+
+    # Initialize MIDI, first of all
+    __bootstrap()
     cc_bootstrap()
 
-    # FIXME: doc me
+    # Open the port for input and output and process messages
     with mido.open_ioport(__midi_port) as port:
         for msg in port:
-            if __handle_msg(msg):
-                log.warn("Something ain't right FIXME")
+            __handle_msg(msg)

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
+# Handler success and failure codes
 MIDI_MSG_SUCCESS = 0
 MIDI_MSG_FAILURE = -1
 
-# FIXME: doc me
-
 
 class Message:
+    """Standard MIDI message as a class"""
     TYPE_CC = 0
     TYPE_NOTE = 1
 
