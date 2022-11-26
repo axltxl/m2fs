@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import log
+from .message import Message
 
 # List of CC handlers (functions)
 __cc_message_handlers = {}
@@ -183,10 +184,6 @@ def subscribe(*, cc: int, handler):
     # for logging calls to a handler by default
     def wrapper(msg):
         log.info(msg)
-        result, reason = handler(msg)
-        if result != 0:
-            log.warn(
-                f'[CC#{cc}] - handler did not return successfully: {reason}')
-        return result
+        handler(msg)
 
     __cc_message_handlers[cc] = wrapper
