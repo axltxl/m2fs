@@ -5,11 +5,6 @@ from .midi import (
     message_pump,
 )
 
-from .message import (
-    MIDI_MSG_SUCCESS,
-    MIDI_MSG_FAILURE
-)
-
 from .cc import (
     ControlChangeMessage,
     subscribe as subscribe_to_cc,

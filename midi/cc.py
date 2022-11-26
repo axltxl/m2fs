@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import log
-from .message import Message, MIDI_MSG_SUCCESS
 
 # List of CC handlers (functions)
 __cc_message_handlers = {}
@@ -11,7 +10,6 @@ def __null_cc_message_handler(msg: dict):
     """Default CC handler"""
 
     log.info(f'CC {msg.id}: no handler set')
-    return (MIDI_MSG_SUCCESS, "")
 
 
 # List of all MIDI CCs

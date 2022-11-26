@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import log
-from .message import Message, MIDI_MSG_SUCCESS
+from .message import Message
 
 # List of note handlers (functions)
 __note_message_handlers = {}
@@ -10,7 +10,6 @@ __note_message_handlers = {}
 def __null_note_message_handler(msg: dict):
     """Default note handler"""
     log.info(f'NOTE {msg.id}: no handler set')
-    return (MIDI_MSG_SUCCESS, "")
 
 
 # List of all MIDI notes
