@@ -22,15 +22,16 @@ def __log_ports(ports: list[str]) -> None:
         log.warn("No device found :(")
 
 
-# FIXME: doc me
 def __cmd_simget(variable: str) -> None:
-    flightsim.connect()
+    """CLI command to get variable from flight sim"""
+
+    flightsim.connect() # Connect to flight sim
     simvar = flightsim.get_variable(variable)
     if simvar is not None:
         log.info(f'SimConnect: {variable} = {simvar}')
 
-# FIXME: doc me
 def __cleanup():
+    """Housekeeping is done here"""
     flightsim.disconnect()
 
 

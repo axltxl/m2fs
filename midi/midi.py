@@ -88,7 +88,7 @@ def message_pump(*, port_name: str, setup_func: callable) -> None:
     # Intialize MIDI backend
     __bootstrap()
 
-    # FIXME: doc me
+    # Any setting up can be done at this point
     setup_func()
 
     # Open the port for input and output and process messages

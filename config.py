@@ -2,7 +2,6 @@
 
 import midi
 import flightsim
-import log
 
 # MIDI device for this configuration
 MIDI_PORT = "Arturia MiniLab mkII 0"
@@ -25,7 +24,6 @@ def note_middlec_example(m):
 def note_middlecsh_example(m):
     """Example note handler using middle C key"""
 
-    log.info("!!!! MIDDLE C# !!!! Hello from config! :)")
     return (midi.MIDI_MSG_SUCCESS, "")
 
 
