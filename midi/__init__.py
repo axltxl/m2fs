@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from .midi import (
-    set_port,
     list_ports,
     message_pump,
-    bootstrap,
 )
 
 from .message import (

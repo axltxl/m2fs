@@ -14,11 +14,9 @@ from .note import (
     get_handler as note_get_handler,
 )
 
-# MIDI port (device) to be used is set here
-__midi_port = ""
 
 
-def bootstrap():
+def __bootstrap():
     """Initialize MIDI backend (mido)"""
 
     # Make sure we're using rtmidi backend
@@ -28,12 +26,6 @@ def bootstrap():
     cc_bootstrap()
     note_bootstrap()
 
-
-def set_port(port: str) -> None:
-    """Set MIDI port (device) to use"""
-
-    global __midi_port
-    __midi_port = port
 
 
 def list_ports() -> dict:
@@ -90,13 +82,13 @@ def __handle_msg(msg) -> None:
             log.warn(f'(mido) {msg.type}: MIDI message type not supported')
 
 
-def message_pump() -> None:
+def message_pump(*, port_name: str) -> None:
     """Main MIDI event message pump"""
 
-    if not len(__midi_port):
-        raise Exception("MIDI port has not been set!")
+    # Intialize MIDI backend
+    __bootstrap()
 
     # Open the port for input and output and process messages
-    with mido.open_input(__midi_port) as port:
+    with mido.open_input(port_name) as port:
         for msg in port:
             __handle_msg(msg)

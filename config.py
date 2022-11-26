@@ -5,11 +5,7 @@ import flightsim
 import log
 
 # MIDI device for this configuration
-# MIDI_PORT = "Arturia MiniLab mkII 0"
-MIDI_PORT = "LPX MIDI 1"
-MIDI_PORTS = [
-
-]
+MIDI_PORT = "Arturia MiniLab mkII 0"
 
 
 def hdg_incdec(m):
@@ -40,16 +36,3 @@ def on_init() -> None:
     # Note handlers
     midi.set_note_handler(note=midi.NOTE_060, handler=note_middlec_example)
     midi.set_note_handler(note=midi.NOTE_061, handler=note_middlecsh_example)
-
-# FIXME remove me
-# MIDI_CC_HANDLERS = {
-#     midi.CC_112: hdg_incdec
-# }
-
-# MIDI_NOTE_HANDLERS = {
-#     midi.NOTE_060: note_middlec_example,
-#     midi.NOTE_061: note_middlecsh_example
-# }
-
-
-# def example_cc
