@@ -18,7 +18,7 @@ def hdg_incdec(m):
 def note_middlec_example(m):
     """Example note handler using middle C key"""
 
-    log.info("!!!! MIDDLE C !!!! Hello from config! :)")
+    flightsim.set_variable("LIGHT_STROBE", True)
     return (midi.MIDI_MSG_SUCCESS, "")
 
 

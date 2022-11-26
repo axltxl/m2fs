@@ -82,11 +82,14 @@ def __handle_msg(msg) -> None:
             log.warn(f'(mido) {msg.type}: MIDI message type not supported')
 
 
-def message_pump(*, port_name: str) -> None:
+def message_pump(*, port_name: str, setup_func: callable) -> None:
     """Main MIDI event message pump"""
 
     # Intialize MIDI backend
     __bootstrap()
+
+    # FIXME: doc me
+    setup_func()
 
     # Open the port for input and output and process messages
     with mido.open_input(port_name) as port:
