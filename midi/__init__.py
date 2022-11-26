@@ -1,24 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from .midi import (
-    set_port,
     list_ports,
     message_pump,
-    bootstrap,
-)
-
-from .message import (
-    MIDI_MSG_SUCCESS,
-    MIDI_MSG_FAILURE
 )
 
 from .cc import (
     ControlChangeMessage,
-    set_handler as set_cc_handler,
+    subscribe as subscribe_to_cc,
 )
 from .note import (
     NoteMessage,
-    set_handler as set_note_handler,
+    subscribe as subscribe_to_note,
 )
 
 

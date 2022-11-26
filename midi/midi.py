@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+import sys
+import os
+import traceback
+
 import mido
 import log
 
@@ -14,11 +19,9 @@ from .note import (
     get_handler as note_get_handler,
 )
 
-# MIDI port (device) to be used is set here
-__midi_port = ""
 
 
-def bootstrap():
+def __bootstrap():
     """Initialize MIDI backend (mido)"""
 
     # Make sure we're using rtmidi backend
@@ -28,12 +31,6 @@ def bootstrap():
     cc_bootstrap()
     note_bootstrap()
 
-
-def set_port(port: str) -> None:
-    """Set MIDI port (device) to use"""
-
-    global __midi_port
-    __midi_port = port
 
 
 def list_ports() -> dict:
@@ -72,6 +69,19 @@ def __get_midi_message(msg) -> Message:
     return handler_msg
 
 
+def __handle_except(e):
+    """
+    Handle (log) any exception
+    """
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    log.error("Unhandled {e} at {file}:{line}: '{msg}'"
+              .format(e=exc_type.__name__, file=fname,
+                      line=exc_tb.tb_lineno,  msg=e))
+    log.error(traceback.format_exc())
+
+
+
 def __handle_msg(msg) -> None:
     """Handle a raw mido MIDI message via a handler"""
 
@@ -81,22 +91,30 @@ def __handle_msg(msg) -> None:
     # ... and process it accordingly depending on its type
     # NOTE: at the time of writing, only MIDI CC and NOTE_ON/NOTE_OFF messages
     # are supported
-    if m is not None:
-        if m.type == Message.TYPE_CC:
-            cc_get_handler(cc=m.id)(m)
-        elif m.type == Message.TYPE_NOTE:
-            note_get_handler(note=m.id)(m)
-        else:
-            log.warn(f'(mido) {msg.type}: MIDI message type not supported')
+    try:
+        if m is not None:
+            if m.type == Message.TYPE_CC:
+                cc_get_handler(cc=m.id)(m) # invoke CC handler
+            elif m.type == Message.TYPE_NOTE:
+                note_get_handler(note=m.id)(m) # invoke note handler
+            else:
+                log.warn(f'(mido) {msg.type}: MIDI message type not supported')
+    except Exception as e:
+        log.error(f'{"CC" if m.type == Message.TYPE_CC else "NOTE"}:{m.id} errored')
+        __handle_except(e)
 
 
-def message_pump() -> None:
+
+def message_pump(*, port_name: str, setup_func: callable) -> None:
     """Main MIDI event message pump"""
 
-    if not len(__midi_port):
-        raise Exception("MIDI port has not been set!")
+    # Intialize MIDI backend
+    __bootstrap()
+
+    # Any setting up can be done at this point
+    setup_func()
 
     # Open the port for input and output and process messages
-    with mido.open_ioport(__midi_port) as port:
+    with mido.open_input(port_name) as port:
         for msg in port:
             __handle_msg(msg)

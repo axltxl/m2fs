@@ -1,15 +1,16 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
 import os
 import traceback
 
+from docopt import docopt
+
 import config
+import flightsim
 import log
 import midi
 
-CMD_LS = "ls"
-
+PKG_VERSION="0.1.0"
 
 def __log_ports(ports: list[str]) -> None:
     """Log MIDI port(s) currently connected"""
@@ -21,11 +22,24 @@ def __log_ports(ports: list[str]) -> None:
         log.warn("No device found :(")
 
 
+def __cmd_simget(variable: str) -> None:
+    """CLI command to get variable from flight sim"""
+
+    flightsim.connect() # Connect to flight sim
+    simvar = flightsim.get_variable(variable)
+    if simvar is not None:
+        log.info(f'SimConnect: {variable} = {simvar}')
+
+def __cleanup():
+    """Housekeeping is done here"""
+    flightsim.disconnect()
+
+
 def __cmd_ls() -> None:
     """Process command argument"""
 
     log.info("Listing MIDI port(s) ...")
-    ports = midi.ls_ports()
+    ports = midi.list_ports()
     log.info("List of MIDI input port(s) found:")
     __log_ports(ports['input'])
     log.info("List of MIDI output port(s) found:")
@@ -35,17 +49,15 @@ def __cmd_ls() -> None:
 
 
 def __parse_args(argv: list[str]) -> dict:
-    """Parse arguments"""
+    """midi2sim
 
-    options = {
-        "command": None
-    }
+        Usage:
+            midi2sim
+            midi2sim midi [(list)]
+            midi2sim sim var get <variable>
+    """
 
-    try:
-        options["command"] = argv[0]
-    except IndexError:
-        pass
-    return options
+    return docopt(__parse_args.__doc__, argv=argv, version=PKG_VERSION)
 
 
 def __handle_except(e):
@@ -63,31 +75,6 @@ def __handle_except(e):
     return -1
 
 
-def config_bootstrap():
-    """Setup handlers and more from config :) """
-
-    # Read from config and get which port (MIDI controller or device)
-    # is it gonna read messages from
-    midi.set_port(config.MIDI_PORT)
-
-    log.info("Setting MIDI handlers from config ...")
-    log.info(f'{len(config.MIDI_CC_HANDLERS)} CC handler(s) found on config ...')
-    log.info(
-        f'{len(config.MIDI_NOTE_HANDLERS)} NOTE handler(s) found on config ...')
-
-    # Set CC handlers from config
-    # They are expected to be located within the MIDI_CC_HANDLERS dictionary
-    for cc, handler in config.MIDI_CC_HANDLERS.items():
-        log.info(f'CC # {cc}: found handler: {handler.__name__}')
-        midi.set_cc_handler(cc=cc, handler=handler)
-
-    # Set NOTE handlers from config
-    # They are expected to be located within the MIDI_NOTE_HANDLERS dictionary
-    for note, handler in config.MIDI_NOTE_HANDLERS.items():
-        log.info(f'NOTE # {note}: found handler: {handler.__name__}')
-        midi.set_note_handler(note=note, handler=handler)
-
-
 def event_loop() -> None:
     """
     Main event loop
@@ -97,29 +84,37 @@ def event_loop() -> None:
     with them
     """
 
-    # Initialize MIDI, first of all
-    midi.bootstrap()
-
     # Read config
-    config_bootstrap()
+    log.info(f'MIDI port in use: {config.MIDI_PORT}')
 
-    # Initialize the MIDI message pump
-    log.info(f'MIDI device = {config.MIDI_PORT} ...')
+    # Start processing MIDI messages already
     log.info("Listening for messages ... ")
-    midi.message_pump()
+    midi.message_pump(port_name=config.MIDI_PORT, setup_func=config.on_init)
+
 
 
 def main(options: dict):
     """Main entrypoint"""
 
     try:
-        command = options['command']
-
         # Get command from command line
         # (already parsed to options)
-        if command is not None:
-            if command == CMD_LS:
+        # if command is not None:
+
+        # MIDI options
+        if options['midi']:
+            if options['list']:
                 __cmd_ls()
+
+       # SimConnect options
+        elif options['sim']:
+
+            # SimVar options
+            if options['var']:
+
+                # Get/Set variable
+                if options['get']:
+                    __cmd_simget(options['<variable>'])
 
         # If no command is provided, it's gonna
         # do its thing and run the event loop
@@ -129,6 +124,8 @@ def main(options: dict):
 
     except Exception as e:
         return __handle_except(e)
+    finally:
+        __cleanup()
 
 
 if __name__ == "__main__":

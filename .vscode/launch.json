@@ -13,15 +13,65 @@
             "justMyCode": true
         },
         {
-            "name": "debug (list)",
+            "name": "debug (midi list)",
             "type": "python",
             "request": "launch",
             "program": "midi2sim.py",
             "args": [
-                "ls"
+                "midi",
+                "list"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "debug (sim get variable)",
+            "type": "python",
+            "request": "launch",
+            "program": "midi2sim.py",
+            "args": [
+                "sim",
+                "var",
+                "get",
+                "${input:SimVarGet}"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "debug (sim set variable)",
+            "type": "python",
+            "request": "launch",
+            "program": "midi2sim.py",
+            "args": [
+                "sim",
+                "var",
+                "set",
+                "${input:SimVarSet}",
+                "${input:SimVarSetValue}"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
         }
+    ],
+    "inputs": [
+        {
+            "id": "SimVarGet",
+            "type": "promptString",
+            "description": "SimVar to query",
+            "default": "HEADING_INDICATOR"
+        },
+        {
+            "id": "SimVarSet",
+            "type": "promptString",
+            "description": "SimVar name to set",
+            "default": "CAMERA_STATE"
+        },
+        {
+            "id": "SimVarSetValue",
+            "type": "promptString",
+            "description": "SimVar value to set",
+            "default": "4"
+        },
     ]
 }
