@@ -188,10 +188,6 @@ def subscribe(*, note: int, handler):
     # for logging calls to a handler by default
     def wrapper(msg):
         log.info(msg)
-        result, reason = handler(msg)
-        if result != 0:
-            log.warn(
-                f'[NOTE#{note}] - handler did not return successfully: {reason}')
-        return result
+        handler(msg)
 
     __note_message_handlers[note] = wrapper

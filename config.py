@@ -16,7 +16,7 @@ def hdg_incdec(m):
 def hdg_set(m):
     """Heading bug set (FIXME)"""
 
-    current_heading = math.degrees(flightsim.get_variable("HEADING_INDICATOR"))
+    current_heading = int(math.degrees(flightsim.get_variable("HEADING_INDICATOR").value))
     flightsim.send_event("HEADING_BUG_SET", current_heading)
 
 def alt_incdec(m):
