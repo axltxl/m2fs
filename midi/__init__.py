@@ -12,11 +12,11 @@ from .message import (
 
 from .cc import (
     ControlChangeMessage,
-    set_handler as set_cc_handler,
+    subscribe as subscribe_to_cc,
 )
 from .note import (
     NoteMessage,
-    set_handler as set_note_handler,
+    subscribe as subscribe_to_note,
 )
 
 

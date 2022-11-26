@@ -177,13 +177,13 @@ def bootstrap() -> None:
 
     for note in range(NOTE_MIN, NOTE_MAX + 1):
         log.info(f'Setting default handler for MIDI note # {note} ...')
-        set_handler(note=note, handler=__null_note_message_handler)
+        subscribe(note=note, handler=__null_note_message_handler)
 
 
-def set_handler(*, note: int, handler):
+def subscribe(*, note: int, handler):
     """Map a handler to changes done on a CC"""
 
-    log.info(f'NOTE: setting handler [{note}] -> {handler.__name__}')
+    log.info(f'NOTE: subscribing handler [{note}] -> {handler.__name__}')
 
     # Decorator pattern is used mostly
     # for logging calls to a handler by default

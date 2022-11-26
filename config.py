@@ -11,7 +11,7 @@ MIDI_PORT = "Arturia MiniLab mkII 0"
 def hdg_incdec(m):
     """Default CC handler"""
 
-    log.info("hello from hdg_incdec :)")
+    flightsim.send_event("HEADING_BUG_INC")
     return (midi.MIDI_MSG_SUCCESS, "")
 
 
@@ -31,8 +31,8 @@ def note_middlecsh_example(m):
 
 def on_init() -> None:
     # CC handlers
-    midi.set_cc_handler(cc=midi.CC_112, handler=hdg_incdec)
+    midi.subscribe_to_cc(cc=midi.CC_112, handler=hdg_incdec)
 
     # Note handlers
-    midi.set_note_handler(note=midi.NOTE_060, handler=note_middlec_example)
-    midi.set_note_handler(note=midi.NOTE_061, handler=note_middlecsh_example)
+    midi.subscribe_to_note(note=midi.NOTE_060, handler=note_middlec_example)
+    midi.subscribe_to_note(note=midi.NOTE_061, handler=note_middlecsh_example)
