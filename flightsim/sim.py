@@ -14,6 +14,7 @@ _sm_client = None
 # FIXME: doc me
 def connect() -> SimConnect.SimConnect:
 
+    global _sm_client
     if _sm_client is None:
         log.info("Connecting to simulator using SimConnect ...")
 
@@ -28,3 +29,10 @@ def connect() -> SimConnect.SimConnect:
         log.info("Connected to simulator!")
 
     return _sm_client
+
+# FIXME: doc me
+def disconnect() -> None:
+    global _sm_client
+    if _sm_client is not None:
+        _sm_client.exit()
+        log.info("Disconnected from simulator ...")

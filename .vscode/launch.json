@@ -25,17 +25,25 @@
             "justMyCode": true
         },
         {
-            "name": "debug (simconnect)",
+            "name": "debug (sim get variable)",
             "type": "python",
             "request": "launch",
             "program": "midi2sim.py",
             "args": [
                 "sim",
-                "watch",
-                "--events"
+                "get",
+                "${input:SimVar}"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
         }
+    ],
+    "inputs": [
+        {
+            "id": "SimVar",
+            "type": "promptString",
+            "description": "SimVar to query",
+            "default": "HEADING_INDICATOR"
+        },
     ]
 }

@@ -6,6 +6,7 @@ import traceback
 from docopt import docopt
 
 import config
+import flightsim
 import log
 import midi
 
@@ -21,10 +22,19 @@ def __log_ports(ports: list[str]) -> None:
         log.warn("No device found :(")
 
 
-def __cmd_simwatch() -> None:
-    # FIXME: doc me
-    log.info("Watching for SimEvents ...")
-    pass
+# FIXME: doc me
+def __cmd_simget(variable: str) -> None:
+    flightsim.connect()
+    simvar = flightsim.get_variable(variable)
+    if simvar is not None:
+        log.info(f'SimConnect: {variable} = {flightsim.get_variable(variable)}')
+    flightsim.disconnect()
+
+
+# FIXME: doc me
+def __cleanup():
+    flightsim.disconnect()
+
 
 def __cmd_ls() -> None:
     """Process command argument"""
@@ -45,7 +55,7 @@ def __parse_args(argv: list[str]) -> dict:
         Usage:
             midi2sim
             midi2sim midi [(list)]
-            midi2sim sim [(watch)] (--events | --vars)
+            midi2sim sim get <variable>
     """
 
     return docopt(__parse_args.__doc__, argv=argv, version=PKG_VERSION)
@@ -99,8 +109,8 @@ def main(options: dict):
                 __cmd_ls()
 
        # SimConnect options
-        elif options['sim'] and options['watch']:
-                __cmd_simwatch()
+        elif options['sim'] and options['get']:
+                __cmd_simget(options['<variable>'])
 
         # If no command is provided, it's gonna
         # do its thing and run the event loop
