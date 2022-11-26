@@ -183,6 +183,8 @@ def bootstrap() -> None:
 def set_handler(*, note: int, handler):
     """Map a handler to changes done on a CC"""
 
+    log.info(f'NOTE: setting handler [{note}] -> {handler.__name__}')
+
     # Decorator pattern is used mostly
     # for logging calls to a handler by default
     def wrapper(msg):
