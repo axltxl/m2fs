@@ -13,12 +13,26 @@
             "justMyCode": true
         },
         {
-            "name": "debug (list)",
+            "name": "debug (midi list)",
             "type": "python",
             "request": "launch",
             "program": "midi2sim.py",
             "args": [
-                "ls"
+                "midi",
+                "list"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "debug (simconnect)",
+            "type": "python",
+            "request": "launch",
+            "program": "midi2sim.py",
+            "args": [
+                "sim",
+                "watch",
+                "--events"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

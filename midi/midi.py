@@ -97,6 +97,6 @@ def message_pump() -> None:
         raise Exception("MIDI port has not been set!")
 
     # Open the port for input and output and process messages
-    with mido.open_ioport(__midi_port) as port:
+    with mido.open_input(__midi_port) as port:
         for msg in port:
             __handle_msg(msg)

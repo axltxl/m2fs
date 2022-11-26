@@ -4,7 +4,7 @@ import midi
 import log
 
 # MIDI device for this configuration
-MIDI_PORT = "Arturia MiniLab mkII"
+MIDI_PORT = "Arturia MiniLab mkII 0"
 
 
 def hdg_incdec(m):

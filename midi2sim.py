@@ -1,15 +1,15 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
 import os
 import traceback
 
+from docopt import docopt
+
 import config
 import log
 import midi
 
-CMD_LS = "ls"
-
+PKG_VERSION="0.1.0"
 
 def __log_ports(ports: list[str]) -> None:
     """Log MIDI port(s) currently connected"""
@@ -21,11 +21,16 @@ def __log_ports(ports: list[str]) -> None:
         log.warn("No device found :(")
 
 
+def __cmd_simwatch() -> None:
+    # FIXME: doc me
+    log.info("Watching for SimEvents ...")
+    pass
+
 def __cmd_ls() -> None:
     """Process command argument"""
 
     log.info("Listing MIDI port(s) ...")
-    ports = midi.ls_ports()
+    ports = midi.list_ports()
     log.info("List of MIDI input port(s) found:")
     __log_ports(ports['input'])
     log.info("List of MIDI output port(s) found:")
@@ -35,17 +40,15 @@ def __cmd_ls() -> None:
 
 
 def __parse_args(argv: list[str]) -> dict:
-    """Parse arguments"""
+    """midi2sim
 
-    options = {
-        "command": None
-    }
+        Usage:
+            midi2sim
+            midi2sim midi [(list)]
+            midi2sim sim [(watch)] (--events | --vars)
+    """
 
-    try:
-        options["command"] = argv[0]
-    except IndexError:
-        pass
-    return options
+    return docopt(__parse_args.__doc__, argv=argv, version=PKG_VERSION)
 
 
 def __handle_except(e):
@@ -113,13 +116,18 @@ def main(options: dict):
     """Main entrypoint"""
 
     try:
-        command = options['command']
-
         # Get command from command line
         # (already parsed to options)
-        if command is not None:
-            if command == CMD_LS:
+        # if command is not None:
+
+        # MIDI options
+        if options['midi']:
+            if options['list']:
                 __cmd_ls()
+
+       # SimConnect options
+        elif options['sim'] and options['watch']:
+                __cmd_simwatch()
 
         # If no command is provided, it's gonna
         # do its thing and run the event loop
