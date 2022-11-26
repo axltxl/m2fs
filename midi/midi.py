@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+import sys
+import os
+import traceback
+
 import mido
 import log
 
@@ -64,6 +69,19 @@ def __get_midi_message(msg) -> Message:
     return handler_msg
 
 
+def __handle_except(e):
+    """
+    Handle (log) any exception
+    """
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    log.error("Unhandled {e} at {file}:{line}: '{msg}'"
+              .format(e=exc_type.__name__, file=fname,
+                      line=exc_tb.tb_lineno,  msg=e))
+    log.error(traceback.format_exc())
+
+
+
 def __handle_msg(msg) -> None:
     """Handle a raw mido MIDI message via a handler"""
 
@@ -73,13 +91,18 @@ def __handle_msg(msg) -> None:
     # ... and process it accordingly depending on its type
     # NOTE: at the time of writing, only MIDI CC and NOTE_ON/NOTE_OFF messages
     # are supported
-    if m is not None:
-        if m.type == Message.TYPE_CC:
-            cc_get_handler(cc=m.id)(m)
-        elif m.type == Message.TYPE_NOTE:
-            note_get_handler(note=m.id)(m)
-        else:
-            log.warn(f'(mido) {msg.type}: MIDI message type not supported')
+    try:
+        if m is not None:
+            if m.type == Message.TYPE_CC:
+                cc_get_handler(cc=m.id)(m) # invoke CC handler
+            elif m.type == Message.TYPE_NOTE:
+                note_get_handler(note=m.id)(m) # invoke note handler
+            else:
+                log.warn(f'(mido) {msg.type}: MIDI message type not supported')
+    except Exception as e:
+        log.error(f'{"CC" if m.type == Message.TYPE_CC else "NOTE"}:{m.id} errored')
+        __handle_except(e)
+
 
 
 def message_pump(*, port_name: str, setup_func: callable) -> None:
