@@ -3,7 +3,7 @@
 import time
 import SimConnect
 
-import log
+from .log import log
 
 # This client will try for up to 5 minutes
 # before giving up in connect to the flight sim
@@ -11,6 +11,7 @@ CONNECTION_TIME_MAX = 300
 
 # SimConnect client
 _sm_client = None
+
 
 def connect() -> SimConnect.SimConnect:
     """Connect to flight sim via SimConnect library"""

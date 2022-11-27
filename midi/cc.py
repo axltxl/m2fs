@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import log
+from .log import log
 from .message import Message
 
 # List of CC handlers (functions)

@@ -3,7 +3,7 @@
 import threading
 import time
 
-import log
+from .log import log
 from .variables import get_variable, SimVar, SIMCONNECT_CACHE_TTL_MS
 
 # Poll thread tick period is ms
@@ -36,7 +36,7 @@ def __poll():
 
     global __poll_quit
     while not __poll_quit:
-        log.debug("SimVar: Polling for changes ...")
+        log.verbose("SimVar: Polling for changes ...")
         for sub in __poll_simvar_subs:
             __poll_notify_on_change(sub)
         time.sleep(POLL_TICK_PERIOD)  # do not be so aggresive
@@ -63,7 +63,7 @@ def __poll_notify_on_change(sub: SubSimVar) -> None:
     simvar = get_variable(sub.simvar.name)
 
     if simvar.value != sub.simvar.value:
-        log.info(f"SimVar: {simvar.name} ({sub.simvar.value} => {simvar.value})")
+        log.debug(f"SimVar: {simvar.name} ({sub.simvar.value} => {simvar.value})")
         sub.simvar = simvar
         sub.handler(simvar)
 
@@ -73,7 +73,7 @@ def poll_start() -> None:
 
     global __poll_thread
 
-    log.info("SimConnect: start polling for SimVar changes ...")
+    log.debug("SimConnect: start polling for SimVar changes ...")
     __poll_thread.start()
 
 
@@ -83,7 +83,7 @@ def poll_stop() -> None:
     global __poll_thread
     global __poll_quit
 
-    log.info("SimConnect: stop polling for SimVar changes ...")
+    log.debug("SimConnect: stop polling for SimVar changes ...")
 
     __poll_quit = True
     __poll_thread.join()

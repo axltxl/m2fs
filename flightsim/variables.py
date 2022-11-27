@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import SimConnect
-import log
+from .log import log
 from .sim import connect
 
 
@@ -13,7 +13,8 @@ class SimVarException(Exception):
 
 # For how long is Python-SimConnect caching
 # local SimVar data?
-SIMCONNECT_CACHE_TTL_MS = 250
+SIMCONNECT_CACHE_TICK_RATE_HZ = 66
+SIMCONNECT_CACHE_TTL_MS = 1.0 / SIMCONNECT_CACHE_TICK_RATE_HZ
 
 # SimConnect.AircraftRequests object goes in here
 # Once created, it'll update its SimVars' data from
@@ -21,7 +22,7 @@ SIMCONNECT_CACHE_TTL_MS = 250
 __simvar_aq = None
 
 
-def __get_ar() -> SimConnect.AircraftRequests:
+def __get_aq() -> SimConnect.AircraftRequests:
     global __simvar_aq
     if __simvar_aq is None:
         __simvar_aq = SimConnect.AircraftRequests(
@@ -45,10 +46,10 @@ class SimVar:
 def get_variable(name: str) -> (SimVar | None):
     """Get SimVar from flight sim"""
 
-    v = __get_ar().find(name)
+    v = __get_aq().find(name)
     if v is not None:
         value = v.get()
-        log.debug(f"SimVar GET {name} => {value}")
+        log.verbose(f"SimVar GET {name} => {value}")
         return SimVar(name=name, description=v.description, value=value)
 
     # NOTE: Unfortunately, not all SimVars are supported out of the box
@@ -62,8 +63,8 @@ def get_variable(name: str) -> (SimVar | None):
 def set_variable(name: str, value: any) -> None:
     """Set SimVar on flight sim :)"""
 
-    log.debug(f"SimVar SET {name} => {value}")
-    v = __get_ar().find(name)
+    log.verbose(f"SimVar SET {name} => {value}")
+    v = __get_aq().find(name)
     if v is not None:
         v.set(value)
     else:

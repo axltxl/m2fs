@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from .midi import (
+from .midi import message_pump, cleanup
+
+from .port import (
     list_ports,
-    message_pump,
+    connect_input_port,
+    get_input_port_name,
+    send_note_message,
+    send_cc_message,
 )
 
 from .cc import (
