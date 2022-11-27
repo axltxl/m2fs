@@ -9,7 +9,7 @@ __note_message_handlers = {}
 
 def __null_note_message_handler(msg: dict):
     """Default note handler"""
-    log.info(f'NOTE {msg.id}: no handler set')
+    log.info(f"NOTE {msg.id}: no handler set")
 
 
 # List of all MIDI notes
@@ -162,11 +162,11 @@ class NoteMessage(Message):
         return not self.on
 
     def __str__(self) -> str:
-        return f'NoteMessage(id={self.id}, velocity={self.velocity}, channel={self.channel}, on={self.on})'
+        return f"NoteMessage(id={self.id}, velocity={self.velocity}, channel={self.channel}, on={self.on})"
 
 
 def get_handler(*, note):
-    """ Get a handler for a particular MIDI note """
+    """Get a handler for a particular MIDI note"""
 
     return __note_message_handlers[note]
 
@@ -175,14 +175,14 @@ def bootstrap() -> None:
     """Bootstrap CC-related things, mostly initializing handlers"""
 
     for note in range(NOTE_MIN, NOTE_MAX + 1):
-        log.info(f'Setting default handler for MIDI note # {note} ...')
+        log.debug(f"Setting default handler for MIDI note # {note} ...")
         subscribe(note=note, handler=__null_note_message_handler)
 
 
 def subscribe(*, note: int, handler):
     """Map a handler to changes done on a CC"""
 
-    log.info(f'NOTE: subscribing handler [{note}] -> {handler.__name__}')
+    log.debug(f"NOTE: subscribing handler [{note}] -> {handler.__name__}")
 
     # Decorator pattern is used mostly
     # for logging calls to a handler by default

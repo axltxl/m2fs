@@ -34,6 +34,11 @@ def __cmd_simget(variable: str) -> None:
 
 def __cleanup():
     """Housekeeping is done here"""
+
+    # Stop polling
+    flightsim.poll_stop()
+
+    # Disconnect from simulator
     flightsim.disconnect()
 
 
@@ -88,10 +93,13 @@ def event_loop() -> None:
     """
 
     # Read config
-    log.info(f"MIDI port in use: {config.MIDI_PORT}")
+    log.info(f"MIDI input port in use: {config.MIDI_PORT}")
+
+    # Start polling for flightsim changes ... (does not block)
+    flightsim.poll_start()
 
     # Start processing MIDI messages already
-    log.info("Listening for messages ... ")
+    log.info("Listening for MIDI messages ... ")
     midi.message_pump(port_name=config.MIDI_PORT, setup_func=config.on_init)
 
 

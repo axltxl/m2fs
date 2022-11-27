@@ -78,15 +78,30 @@ def yawdamper_toggle(m: midi.NoteMessage) -> None:
     flightsim.send_event("YAW_DAMPER_TOGGLE")
 
 
+def on_autopilot_change(v: flightsim.SimVar) -> None:
+    if v.value == 0:
+        print("AUTOPILOT: OFF")
+    if v.value == 1:
+        print("AUTOPILOT: ON")
+
+
 def on_init() -> None:
     # CC handlers
+    # ----------------------
     midi.subscribe_to_cc(cc=midi.CC_112, handler=ap_hdg_incdec)
     midi.subscribe_to_cc(cc=midi.CC_074, handler=ap_alt_incdec)
     midi.subscribe_to_cc(cc=midi.CC_018, handler=ap_vs_incdec)
 
     # Note handlers
+    # ----------------------
     midi.subscribe_to_note(note=midi.NOTE_113, handler=ap_hdg_set)
     midi.subscribe_to_note(note=midi.NOTE_037, handler=ap_vs_toggle)
     midi.subscribe_to_note(note=midi.NOTE_042, handler=yawdamper_toggle)
     midi.subscribe_to_note(note=midi.NOTE_043, handler=ap_toggle)
     midi.subscribe_to_note(note=midi.NOTE_036, handler=ap_hdg_mode_toggle)
+
+    # SimVar change handlers
+    # ----------------------
+    # You can subscribe a function so that it gets invoked upon a change
+    # on a SimVar
+    flightsim.subscribe_to_simvar("AUTOPILOT_MASTER", handler=on_autopilot_change)

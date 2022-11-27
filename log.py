@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 
-LOG_LVL_INFO = 0
-LOG_LVL_WARN = 1
-LOG_LVL_FATAL = 2
+LOG_LVL_DEBUG = 0
+LOG_LVL_INFO = 1
+LOG_LVL_WARN = 2
+LOG_LVL_FATAL = 3
+LOG_LVL = LOG_LVL_INFO  # FIXME: hardcoded (for now)
+
+LEVEL_STR = {
+    LOG_LVL_DEBUG: "DEBUG",
+    LOG_LVL_INFO: "INFO",
+    LOG_LVL_WARN: "WARN",
+    LOG_LVL_FATAL: "FATAL",
+}
 
 
 def log(level: int, msg: str) -> None:
-    level_str = {
-        LOG_LVL_INFO: "INFO",
-        LOG_LVL_WARN: "WARN",
-        LOG_LVL_FATAL: "FATAL",
-    }
+    if level >= LOG_LVL:
+        print(f"[{LEVEL_STR[level]}] - {msg}")
 
-    print(f"[{level_str[level]}] - {msg}")
+
+def debug(msg: str):
+    log(LOG_LVL_DEBUG, msg)
 
 
 def info(msg: str) -> None:
