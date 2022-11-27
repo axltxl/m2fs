@@ -13,7 +13,8 @@ class SimVarException(Exception):
 
 # For how long is Python-SimConnect caching
 # local SimVar data?
-SIMCONNECT_CACHE_TTL_MS = 250
+SIMCONNECT_CACHE_TICK_RATE_HZ = 66
+SIMCONNECT_CACHE_TTL_MS = 1.0 / SIMCONNECT_CACHE_TICK_RATE_HZ
 
 # SimConnect.AircraftRequests object goes in here
 # Once created, it'll update its SimVars' data from
