@@ -40,6 +40,12 @@ def ap_hdg_set(m: midi.NoteMessage) -> None:
     flightsim.send_event("HEADING_BUG_SET", current_heading)
 
 
+def ap_hdg_mode_toggle(m: midi.NoteMessage) -> None:
+    """Heading mode toggle"""
+
+    flightsim.send_event("MobiFlight.WT_CJ4_AP_HDG_PRESSED")
+
+
 def ap_alt_incdec(m: midi.ControlChangeMessage) -> None:
     """AP Altitude bug (+/-)"""
 
@@ -49,14 +55,15 @@ def ap_alt_incdec(m: midi.ControlChangeMessage) -> None:
 def ap_vs_toggle(m: midi.NoteMessage):
     """Toggle VS mode"""
 
-    flightsim.send_event("WT_CJ4_AP_VS_PRESSED")
+    flightsim.send_event("MobiFlight.WT_CJ4_AP_VS_PRESSED")
 
 
 def ap_vs_incdec(m: midi.ControlChangeMessage) -> None:
     """VS Mode knob (+/-)"""
 
-    # __send_evt_on_encoder_rotation(m.value, "AP_VS_VAR_INC", "AP_VS_VAR_DEC")
-    __send_evt_on_encoder_rotation(m.value, "WT_CJ4_AP_VS_INC", "WT_CJ4_AP_VS_DEC")
+    __send_evt_on_encoder_rotation(
+        m.value, "MobiFlight.WT_CJ4_AP_VS_INC", "MobiFlight.WT_CJ4_AP_VS_DEC"
+    )
 
 
 def ap_toggle(m: midi.NoteMessage):
@@ -68,7 +75,7 @@ def ap_toggle(m: midi.NoteMessage):
 def yawdamper_toggle(m: midi.NoteMessage) -> None:
     """Toggle yaw damper"""
 
-    flightsim.send_event("YAW_DAMPER_SET", int(m.on))
+    flightsim.send_event("YAW_DAMPER_TOGGLE")
 
 
 def on_init() -> None:
@@ -82,3 +89,4 @@ def on_init() -> None:
     midi.subscribe_to_note(note=midi.NOTE_037, handler=ap_vs_toggle)
     midi.subscribe_to_note(note=midi.NOTE_042, handler=yawdamper_toggle)
     midi.subscribe_to_note(note=midi.NOTE_043, handler=ap_toggle)
+    midi.subscribe_to_note(note=midi.NOTE_036, handler=ap_hdg_mode_toggle)

@@ -11,7 +11,7 @@ from .message import Message
 from .cc import (
     ControlChangeMessage,
     bootstrap as cc_bootstrap,
-    get_handler as cc_get_handler
+    get_handler as cc_get_handler,
 )
 from .note import (
     NoteMessage,
@@ -20,26 +20,24 @@ from .note import (
 )
 
 
-
 def __bootstrap():
     """Initialize MIDI backend (mido)"""
 
     # Make sure we're using rtmidi backend
-    mido.set_backend('mido.backends.rtmidi')
+    mido.set_backend("mido.backends.rtmidi")
 
     # Initialize CC and Note subsystems
     cc_bootstrap()
     note_bootstrap()
 
 
-
 def list_ports() -> dict:
     """List all physical MIDI ports (devices)"""
 
     return {
-        'input': mido.get_input_names(),
-        'output': mido.get_output_names(),
-        'io': mido.get_ioport_names()
+        "input": mido.get_input_names(),
+        "output": mido.get_output_names(),
+        "io": mido.get_ioport_names(),
     }
 
 
@@ -50,19 +48,17 @@ def __get_midi_message(msg) -> Message:
     """
     handler_msg = None
 
-    if msg.type == 'control_change'  \
-            or msg.type == 'note_on' or msg.type == 'note_off':
+    if msg.type == "control_change" or msg.type == "note_on" or msg.type == "note_off":
 
         # Convert CC messages to proper ControlChangeMessage
-        if msg.type == 'control_change':
+        if msg.type == "control_change":
             handler_msg = ControlChangeMessage(id=msg.control)
             handler_msg.value = msg.value
 
         # Convert note messages from mido to proper NoteMessage
-        elif msg.type == 'note_on' or msg.type == 'note_off':
-            note_on = False if msg.type == 'note_off' else True
-            handler_msg = NoteMessage(
-                id=msg.note, velocity=msg.velocity, on=note_on)
+        elif msg.type == "note_on" or msg.type == "note_off":
+            note_on = False if msg.type == "note_off" else True
+            handler_msg = NoteMessage(id=msg.note, velocity=msg.velocity, on=note_on)
 
         # Set channel appropriately (this applies to all cases)
         handler_msg.channel = msg.channel
@@ -75,11 +71,12 @@ def __handle_except(e):
     """
     exc_type, exc_obj, exc_tb = sys.exc_info()
     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    log.error("Unhandled {e} at {file}:{line}: '{msg}'"
-              .format(e=exc_type.__name__, file=fname,
-                      line=exc_tb.tb_lineno,  msg=e))
+    log.error(
+        "Unhandled {e} at {file}:{line}: '{msg}'".format(
+            e=exc_type.__name__, file=fname, line=exc_tb.tb_lineno, msg=e
+        )
+    )
     log.error(traceback.format_exc())
-
 
 
 def __handle_msg(msg) -> None:
@@ -94,15 +91,14 @@ def __handle_msg(msg) -> None:
     try:
         if m is not None:
             if m.type == Message.TYPE_CC:
-                cc_get_handler(cc=m.id)(m) # invoke CC handler
+                cc_get_handler(cc=m.id)(m)  # invoke CC handler
             elif m.type == Message.TYPE_NOTE:
-                note_get_handler(note=m.id)(m) # invoke note handler
+                note_get_handler(note=m.id)(m)  # invoke note handler
             else:
-                log.warn(f'(mido) {msg.type}: MIDI message type not supported')
+                log.warn(f"(mido) {msg.type}: MIDI message type not supported")
     except Exception as e:
         log.error(f'{"CC" if m.type == Message.TYPE_CC else "NOTE"}:{m.id} errored')
         __handle_except(e)
-
 
 
 def message_pump(*, port_name: str, setup_func: callable) -> None:
