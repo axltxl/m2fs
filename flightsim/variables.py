@@ -48,7 +48,7 @@ def get_variable(name: str) -> (SimVar | None):
     v = __get_ar().find(name)
     if v is not None:
         value = v.get()
-        log.debug(f"SimVar GET {name} => {value}")
+        log.verbose(f"SimVar GET {name} => {value}")
         return SimVar(name=name, description=v.description, value=value)
 
     # NOTE: Unfortunately, not all SimVars are supported out of the box
@@ -62,7 +62,7 @@ def get_variable(name: str) -> (SimVar | None):
 def set_variable(name: str, value: any) -> None:
     """Set SimVar on flight sim :)"""
 
-    log.debug(f"SimVar SET {name} => {value}")
+    log.verbose(f"SimVar SET {name} => {value}")
     v = __get_ar().find(name)
     if v is not None:
         v.set(value)

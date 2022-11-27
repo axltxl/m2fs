@@ -7,6 +7,8 @@ import traceback
 import mido
 import log
 
+from .port import cleanup as port_cleanup
+from .port import get_input_port
 from .message import Message
 from .cc import (
     ControlChangeMessage,
@@ -18,6 +20,7 @@ from .note import (
     bootstrap as note_bootstrap,
     get_handler as note_get_handler,
 )
+from .exceptions import MIDIException
 
 
 def __bootstrap():
@@ -29,16 +32,6 @@ def __bootstrap():
     # Initialize CC and Note subsystems
     cc_bootstrap()
     note_bootstrap()
-
-
-def list_ports() -> dict:
-    """List all physical MIDI ports (devices)"""
-
-    return {
-        "input": mido.get_input_names(),
-        "output": mido.get_output_names(),
-        "io": mido.get_ioport_names(),
-    }
 
 
 def __get_midi_message(msg) -> Message:
@@ -101,7 +94,12 @@ def __handle_msg(msg) -> None:
         __handle_except(e)
 
 
-def message_pump(*, port_name: str, setup_func: callable) -> None:
+# FIXME: doc me
+def cleanup() -> None:
+    port_cleanup()
+
+
+def message_pump(*, setup_func: callable) -> None:
     """Main MIDI event message pump"""
 
     # Intialize MIDI backend
@@ -111,6 +109,10 @@ def message_pump(*, port_name: str, setup_func: callable) -> None:
     setup_func()
 
     # Open the port for input and output and process messages
-    with mido.open_input(port_name) as port:
-        for msg in port:
+    # with mido.open_input(__in_port_name) as in_port:
+    in_port = get_input_port()
+    if in_port is not None and not in_port.closed:
+        for msg in in_port:
             __handle_msg(msg)
+    else:
+        raise MIDIException("No input port connected")

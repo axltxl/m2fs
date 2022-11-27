@@ -41,6 +41,9 @@ def __cleanup():
     # Disconnect from simulator
     flightsim.disconnect()
 
+    # FIXME
+    midi.cleanup()
+
 
 def __cmd_ls() -> None:
     """Process command argument"""
@@ -92,15 +95,13 @@ def event_loop() -> None:
     with them
     """
 
-    # Read config
-    log.info(f"MIDI input port in use: {config.MIDI_PORT}")
-
     # Start polling for flightsim changes ... (does not block)
     flightsim.poll_start()
 
     # Start processing MIDI messages already
+    log.info(f"MIDI input port in use: {midi.get_input_port_name()}")
     log.info("Listening for MIDI messages ... ")
-    midi.message_pump(port_name=config.MIDI_PORT, setup_func=config.on_init)
+    midi.message_pump(setup_func=config.on_init)
 
 
 def main(options: dict):

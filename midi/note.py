@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import mido
 import log
 from .message import Message
 

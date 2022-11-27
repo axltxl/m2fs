@@ -6,7 +6,9 @@ import flightsim
 import arturia
 
 # MIDI device for this configuration
-MIDI_PORT = "Arturia MiniLab mkII 0"
+MIDI_PORT_IN = "Arturia MiniLab mkII 0"
+MIDI_PORT_OUT = "Arturia MiniLab mkII 1"
+# MIDI_PORT_OUT = "Roland Digital Piano 2"
 ARTURIA_ENC_MODE = arturia.ENC_MODE_REL_1
 
 
@@ -79,13 +81,32 @@ def yawdamper_toggle(m: midi.NoteMessage) -> None:
 
 
 def on_autopilot_change(v: flightsim.SimVar) -> None:
-    if v.value == 0:
-        print("AUTOPILOT: OFF")
-    if v.value == 1:
-        print("AUTOPILOT: ON")
+    # FIXME: doc me
+    # if v.value:
+    #     midi.send_note_change(
+    #         port_name=MIDI_PORT_OUT, note=midi.NOTE_043, channel=0, on=True
+    #     )
+    # else:
+    #     midi.send_note_change(
+    #         port_name=MIDI_PORT_OUT, note=midi.NOTE_043, channel=0, on=False
+    #     )
+    # note_on = bool(int(v.value))
+
+    # midi.send_note_change(
+    #     port_name=MIDI_PORT_OUT,
+    #     note=midi.NOTE_043,
+    #     channel=0,
+    #     on=bool(int(v.value)),
+    #     time=0,
+    # # # )
+    pass
 
 
 def on_init() -> None:
+    # FIXME: doc me
+    # ----------------------
+    midi.connect_input_port(name=MIDI_PORT_IN)
+
     # CC handlers
     # ----------------------
     midi.subscribe_to_cc(cc=midi.CC_112, handler=ap_hdg_incdec)
