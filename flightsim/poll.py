@@ -3,7 +3,7 @@
 import threading
 import time
 
-import log
+from .log import log
 from .variables import get_variable, SimVar, SIMCONNECT_CACHE_TTL_MS
 
 # Poll thread tick period is ms

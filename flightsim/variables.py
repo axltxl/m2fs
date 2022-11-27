@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import SimConnect
-import log
+from .log import log
 from .sim import connect
 
 
@@ -21,7 +21,7 @@ SIMCONNECT_CACHE_TTL_MS = 250
 __simvar_aq = None
 
 
-def __get_ar() -> SimConnect.AircraftRequests:
+def __get_aq() -> SimConnect.AircraftRequests:
     global __simvar_aq
     if __simvar_aq is None:
         __simvar_aq = SimConnect.AircraftRequests(
@@ -45,7 +45,7 @@ class SimVar:
 def get_variable(name: str) -> (SimVar | None):
     """Get SimVar from flight sim"""
 
-    v = __get_ar().find(name)
+    v = __get_aq().find(name)
     if v is not None:
         value = v.get()
         log.verbose(f"SimVar GET {name} => {value}")
@@ -63,7 +63,7 @@ def set_variable(name: str, value: any) -> None:
     """Set SimVar on flight sim :)"""
 
     log.verbose(f"SimVar SET {name} => {value}")
-    v = __get_ar().find(name)
+    v = __get_aq().find(name)
     if v is not None:
         v.set(value)
     else:

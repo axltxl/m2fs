@@ -5,8 +5,8 @@ import os
 import traceback
 
 import mido
-import log
 
+from .log import log
 from .port import cleanup as port_cleanup
 from .port import get_input_port
 from .message import Message
@@ -94,8 +94,9 @@ def __handle_msg(msg) -> None:
         __handle_except(e)
 
 
-# FIXME: doc me
 def cleanup() -> None:
+    """Take care of business"""
+
     port_cleanup()
 
 

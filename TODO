@@ -3,5 +3,6 @@
 * Support for pitch wheel
 * Support for mod wheel
 
+* Implement --log-level (-vvvvv)
 * SimConnect: replace SimConnect with https://github.com/Koseng/MSFSPythonSimConnectMobiFlightExtension ?
     * it works the same and supports SimVars from MobiFlight :)

@@ -7,8 +7,10 @@ from docopt import docopt
 
 import config
 import flightsim
-import log
+import logger
 import midi
+
+log = logger.Logger(prefix="main:")
 
 PKG_VERSION = "0.1.0"
 
@@ -41,7 +43,8 @@ def __cleanup():
     # Disconnect from simulator
     flightsim.disconnect()
 
-    # FIXME
+    # Take care of business on the MIDI
+    # side of things
     midi.cleanup()
 
 
@@ -99,8 +102,6 @@ def event_loop() -> None:
     flightsim.poll_start()
 
     # Start processing MIDI messages already
-    log.info(f"MIDI input port in use: {midi.get_input_port_name()}")
-    log.info("Listening for MIDI messages ... ")
     midi.message_pump(setup_func=config.on_init)
 
 

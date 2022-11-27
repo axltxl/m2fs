@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import SimConnect
-import log
+from .log import log
 from .sim import connect
 
 
