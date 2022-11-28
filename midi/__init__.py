@@ -18,6 +18,10 @@ from .note import (
     NoteMessage,
     subscribe as subscribe_to_note,
 )
+from .pitchwheel import (
+    PitchWheelMessage,
+    subscribe as subscribe_to_pitchwheel,
+)
 
 
 from .cc import (

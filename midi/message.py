@@ -3,7 +3,7 @@
 
 TYPE_CC = 0
 TYPE_NOTE = 1
-TYPE_PITCH = 2
+TYPE_PITCHWHEEL = 2
 
 
 class BaseMessage:

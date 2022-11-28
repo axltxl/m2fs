@@ -10,7 +10,7 @@ from .log import log
 from .port import cleanup as port_cleanup
 from .port import get_input_port
 from .message import BaseMessage
-from .message import TYPE_CC, TYPE_NOTE, TYPE_PITCH
+from .message import TYPE_CC, TYPE_NOTE, TYPE_PITCHWHEEL
 from .cc import (
     ControlChangeMessage,
     bootstrap as cc_bootstrap,
@@ -21,6 +21,13 @@ from .note import (
     bootstrap as note_bootstrap,
     get_handler as note_get_handler,
 )
+
+from .pitchwheel import (
+    PitchWheelMessage,
+    bootstrap as pw_bootstrap,
+    get_handler as pw_get_handler,
+)
+
 from .exceptions import MIDIException
 
 
@@ -30,9 +37,10 @@ def __bootstrap():
     # Make sure we're using rtmidi backend
     mido.set_backend("mido.backends.rtmidi")
 
-    # Initialize CC and Note subsystems
+    # Initialize MIDI subsystems
     cc_bootstrap()
     note_bootstrap()
+    pw_bootstrap()
 
 
 def __get_midi_message(msg) -> BaseMessage:
@@ -42,20 +50,25 @@ def __get_midi_message(msg) -> BaseMessage:
     """
     handler_msg = None
 
-    if msg.type == "control_change" or msg.type == "note_on" or msg.type == "note_off":
+    if msg.type in ["control_change", "note_on", "note_off", "pitchwheel"]:
 
         # Convert CC messages to proper ControlChangeMessage
         if msg.type == "control_change":
-            handler_msg = ControlChangeMessage(id=msg.control)
-            handler_msg.value = msg.value
+            handler_msg = ControlChangeMessage(
+                id=msg.control, value=msg.value, channel=msg.channel
+            )
 
         # Convert note messages from mido to proper NoteMessage
         elif msg.type == "note_on" or msg.type == "note_off":
             note_on = False if msg.type == "note_off" else True
-            handler_msg = NoteMessage(id=msg.note, velocity=msg.velocity, on=note_on)
+            handler_msg = NoteMessage(
+                id=msg.note, velocity=msg.velocity, on=note_on, channel=msg.channel
+            )
 
-        # Set channel appropriately (this applies to all cases)
-        handler_msg.channel = msg.channel
+        # Convert pitch wheel messages from mido to proper PitchWheelMessage
+        elif msg.type == "pitchwheel":
+            handler_msg = PitchWheelMessage(value=msg.pitch, channel=msg.channel)
+
     return handler_msg
 
 
@@ -88,10 +101,12 @@ def __handle_msg(msg) -> None:
                 cc_get_handler(cc=m.id)(m)  # invoke CC handler
             elif m.type == TYPE_NOTE:
                 note_get_handler(note=m.id)(m)  # invoke note handler
+            elif m.type == TYPE_PITCHWHEEL:
+                pw_get_handler()(m)  # invoke pitch wheel handler
         else:
             log.warn(f"(mido) {msg.type}: MIDI message type not supported")
     except Exception as e:
-        log.error(f'{"CC" if m.type == TYPE_CC else "NOTE"}:{m.id} errored')
+        log.error("handler errored!")
         __handle_except(e)
 
 

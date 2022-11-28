@@ -7,12 +7,6 @@ from .message import IdMessage, TYPE_NOTE
 __note_message_handlers = {}
 
 
-def __null_note_message_handler(msg: dict):
-    """Default note handler"""
-
-    log.info(f"NOTE {msg.id}: no handler set")
-
-
 # List of all MIDI notes
 # Source: https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
 NOTE_000 = 0x00
@@ -188,7 +182,13 @@ def subscribe(*, note: int, handler):
     # Decorator pattern is used mostly
     # for logging calls to a handler by default
     def wrapper(msg):
-        log.info(msg)
+        log.debug(msg)
         handler(msg)
 
     __note_message_handlers[note] = wrapper
+
+
+def __null_note_message_handler(msg: NoteMessage):
+    """Default note handler"""
+
+    log.info(f"NOTE {msg.id}: no handler set")

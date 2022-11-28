@@ -8,12 +8,6 @@ from .message import TYPE_CC
 __cc_message_handlers = {}
 
 
-def __null_cc_message_handler(msg: dict):
-    """Default CC handler"""
-
-    log.info(f"CC {msg.id}: no handler set")
-
-
 # List of all MIDI CCs
 CC_000 = 0x00
 CC_001 = 0x01
@@ -184,7 +178,13 @@ def subscribe(*, cc: int, handler):
     # Decorator pattern is used mostly
     # for logging calls to a handler by default
     def wrapper(msg):
-        log.info(msg)
+        log.debug(msg)
         handler(msg)
 
     __cc_message_handlers[cc] = wrapper
+
+
+def __null_cc_message_handler(msg: ControlChangeMessage):
+    """Default CC handler"""
+
+    log.info(f"CC {msg.id}: no handler set")
