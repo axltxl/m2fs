@@ -104,7 +104,7 @@ def __handle_msg(msg) -> None:
             elif m.type == TYPE_PITCHWHEEL:
                 pw_get_handler()(m)  # invoke pitch wheel handler
         else:
-            log.warn(f"(mido) {msg.type}: MIDI message type not supported")
+            log.debug(f"(mido) {msg.type}: MIDI message type not supported")
     except Exception as e:
         log.error("handler errored!")
         __handle_except(e)

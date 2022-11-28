@@ -10,7 +10,11 @@
             "request": "launch",
             "module": "midi2sim",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "args": [
+                "--config",
+                "config.py"
+            ]
         },
         {
             "name": "debug (midi list)",
