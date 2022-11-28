@@ -2,7 +2,7 @@
 
 import math
 import midi
-import flightsim
+import simc
 
 # MIDI device for this configuration
 MIDI_PORT = "Generic"
@@ -11,28 +11,26 @@ MIDI_PORT = "Generic"
 def hdg_incdec(m: midi.Message) -> None:
     """Heading bug (+/-)"""
 
-    flightsim.send_event("HEADING_BUG_INC")
+    simc.send_event("HEADING_BUG_INC")
 
 
 def hdg_set(m: midi.Message) -> None:
     """Heading bug set"""
 
-    current_heading = int(
-        math.degrees(flightsim.get_variable("HEADING_INDICATOR").value)
-    )
-    flightsim.send_event("HEADING_BUG_SET", current_heading)
+    current_heading = int(math.degrees(simc.get_variable("HEADING_INDICATOR").value))
+    simc.send_event("HEADING_BUG_SET", current_heading)
 
 
 def alt_incdec(m: midi.Message) -> None:
     """AP Altitude bug (+/-)"""
 
-    flightsim.send_event("AP_ALT_VAR_INC")
+    simc.send_event("AP_ALT_VAR_INC")
 
 
 def note_middlec_example(m: midi.Message) -> None:
     """Example note handler using middle C key"""
 
-    flightsim.set_variable("LIGHT_STROBE", True)
+    simc.set_variable("LIGHT_STROBE", True)
 
 
 def note_middlecsh_example(m: midi.Message):

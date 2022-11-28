@@ -6,7 +6,7 @@ import traceback
 
 from docopt import docopt
 
-from . import flightsim, midi
+from . import simc, midi
 from .logger import Logger
 
 log = Logger(prefix=">> ")
@@ -93,8 +93,8 @@ def __log_ports(ports: list[str]) -> None:
 def __cmd_simget(variable: str) -> None:
     """CLI command to get variable from flight sim"""
 
-    flightsim.connect()  # Connect to flight sim
-    simvar = flightsim.get_variable(variable)
+    simc.connect()  # Connect to flight sim
+    simvar = simc.get_variable(variable)
     if simvar is not None:
         log.info(f"SimConnect: {variable} = {simvar}")
 
@@ -103,10 +103,10 @@ def __cleanup():
     """Housekeeping is done here"""
 
     # Stop polling
-    flightsim.poll_stop()
+    simc.poll_stop()
 
     # Disconnect from simulator
-    flightsim.disconnect()
+    simc.disconnect()
 
     # Take care of business on the MIDI
     # side of things
@@ -135,8 +135,8 @@ def event_loop() -> None:
     with them
     """
 
-    # Start polling for flightsim changes ... (does not block)
-    flightsim.poll_start()
+    # Start polling for simc changes ... (does not block)
+    simc.poll_start()
 
     # Start processing MIDI messages already
     # FIXME: dynamic config setting
