@@ -85,5 +85,7 @@ def poll_stop() -> None:
 
     log.debug("SimConnect: stop polling for SimVar changes ...")
 
-    __poll_quit = True
-    __poll_thread.join()
+    # kill the poll thread
+    if __poll_thread.is_alive():
+        __poll_quit = True
+        __poll_thread.join()

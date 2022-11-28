@@ -1,6 +1,3 @@
-* Support for pitch wheel
-
-* Repackage everything (rename flightsim to simconnect)
 * Implement --log-level (-vvvvv)
 * SimConnect: replace SimConnect with https://github.com/Koseng/MSFSPythonSimConnectMobiFlightExtension ?
     * it works the same and supports SimVars from MobiFlight :)

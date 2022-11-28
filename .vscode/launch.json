@@ -8,15 +8,19 @@
             "name": "debug (default)",
             "type": "python",
             "request": "launch",
-            "program": "midi2sim.py",
+            "module": "midi2sim",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "args": [
+                "--config",
+                "${workspaceFolder}/examples/arturia_minilab_mk2.py"
+            ]
         },
         {
             "name": "debug (midi list)",
             "type": "python",
             "request": "launch",
-            "program": "midi2sim.py",
+            "module": "midi2sim",
             "args": [
                 "midi",
                 "list"
@@ -28,27 +32,12 @@
             "name": "debug (sim get variable)",
             "type": "python",
             "request": "launch",
-            "program": "midi2sim.py",
+            "module": "midi2sim",
             "args": [
                 "sim",
                 "var",
                 "get",
                 "${input:SimVarGet}"
-            ],
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "debug (sim set variable)",
-            "type": "python",
-            "request": "launch",
-            "program": "midi2sim.py",
-            "args": [
-                "sim",
-                "var",
-                "set",
-                "${input:SimVarSet}",
-                "${input:SimVarSetValue}"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
@@ -66,12 +55,6 @@
             "type": "promptString",
             "description": "SimVar name to set",
             "default": "CAMERA_STATE"
-        },
-        {
-            "id": "SimVarSetValue",
-            "type": "promptString",
-            "description": "SimVar value to set",
-            "default": "4"
-        },
+        }
     ]
 }
