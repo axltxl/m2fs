@@ -4,7 +4,7 @@ import os
 import sys
 import traceback
 
-from docopt import docopt
+from docopt import docopt, DocoptExit
 
 from . import simc, midi
 from .logger import Logger
@@ -74,6 +74,8 @@ def main(argv: list[str]) -> int:
             event_loop()
             return 0
 
+    except DocoptExit:
+        print(__parse_args.__doc__)
     except Exception as e:
         return __handle_except(e)
     finally:
