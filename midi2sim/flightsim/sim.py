@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+
 import SimConnect
 
 from .log import log

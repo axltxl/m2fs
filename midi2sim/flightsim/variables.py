@@ -3,6 +3,7 @@
 import threading
 
 import SimConnect
+
 from .log import log
 from .sim import connect
 
