@@ -51,7 +51,7 @@ def connect_input_port(*, name) -> None:
     global __in_port
 
     __in_port = mido.open_input(name)
-    log.info(f"MIDI input connected: {__in_port.name}")
+    log.info(f"input port connected: {__in_port.name}")
 
 
 def get_input_port() -> (mido.ports.BaseInput | None):

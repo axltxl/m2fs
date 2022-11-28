@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from .log import log
-from .message import Message
+from .message import IdMessage
+from .message import TYPE_CC
 
 # List of CC handlers (functions)
 __cc_message_handlers = {}
@@ -146,7 +147,7 @@ CC_MIN = CC_000
 CC_MAX = CC_127
 
 
-class ControlChangeMessage(Message):
+class ControlChangeMessage(IdMessage):
     """
     MIDI CC as a class
 
@@ -154,7 +155,7 @@ class ControlChangeMessage(Message):
     """
 
     def __init__(self, *, id=0, value=0, channel=0):
-        super().__init__(type=Message.TYPE_CC, id=id, value=value, channel=channel)
+        super().__init__(type=TYPE_CC, id=id, value=value, channel=channel)
         self.value = value
 
     def __str__(self) -> str:

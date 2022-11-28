@@ -1,8 +1,6 @@
-* MIDI: Ability to setup input and output ports
-    * Ability to send MIDI messages to output ports
 * Support for pitch wheel
-* Support for mod wheel
 
+* Repackage everything (rename flightsim to simconnect)
 * Implement --log-level (-vvvvv)
 * SimConnect: replace SimConnect with https://github.com/Koseng/MSFSPythonSimConnectMobiFlightExtension ?
     * it works the same and supports SimVars from MobiFlight :)

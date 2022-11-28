@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 
-class Message:
-    """Standard MIDI message as a class"""
-    TYPE_CC = 0
-    TYPE_NOTE = 1
 
-    def __init__(self, *, type, id=0, value=0, channel=0):
+TYPE_CC = 0
+TYPE_NOTE = 1
+TYPE_PITCH = 2
+
+
+class BaseMessage:
+    """Standard MIDI message as a class"""
+
+    def __init__(self, *, type, value=0, channel=0):
         self.type = type
-        self.id = id
         self.channel = channel
         self.value = value
 
-    def __str__(self) -> str:
-        return f'Message(type={self.type}, id={self.id})'
+
+class IdMessage(BaseMessage):
+    """Message with an ID value (such as CCs or notes)"""
+
+    def __init__(self, *, type, id=0, value=0, channel=0):
+        super().__init__(type=type, value=value, channel=channel)
+        self.id = id

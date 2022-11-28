@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .log import log
-from .message import Message
+from .message import IdMessage, TYPE_NOTE
 
 # List of note handlers (functions)
 __note_message_handlers = {}
@@ -147,14 +147,14 @@ NOTE_MIN = NOTE_000
 NOTE_MAX = NOTE_127
 
 
-class NoteMessage(Message):
+class NoteMessage(IdMessage):
     """
     A MIDI note message as a class.
     It covers both note_on, and note_off messages
     """
 
     def __init__(self, *, on=False, id=0, value=0, channel=0, velocity=0):
-        super().__init__(type=Message.TYPE_NOTE, id=id, value=value, channel=channel)
+        super().__init__(type=TYPE_NOTE, id=id, value=value, channel=channel)
         self.on = on
         self.velocity = velocity
 

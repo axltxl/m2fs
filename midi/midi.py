@@ -9,7 +9,8 @@ import mido
 from .log import log
 from .port import cleanup as port_cleanup
 from .port import get_input_port
-from .message import Message
+from .message import BaseMessage
+from .message import TYPE_CC, TYPE_NOTE, TYPE_PITCH
 from .cc import (
     ControlChangeMessage,
     bootstrap as cc_bootstrap,
@@ -34,7 +35,7 @@ def __bootstrap():
     note_bootstrap()
 
 
-def __get_midi_message(msg) -> Message:
+def __get_midi_message(msg) -> BaseMessage:
     """
     Create a Message-based object from a mido MIDI message.
     Returns None if message type is not supported
@@ -83,14 +84,14 @@ def __handle_msg(msg) -> None:
     # are supported
     try:
         if m is not None:
-            if m.type == Message.TYPE_CC:
+            if m.type == TYPE_CC:
                 cc_get_handler(cc=m.id)(m)  # invoke CC handler
-            elif m.type == Message.TYPE_NOTE:
+            elif m.type == TYPE_NOTE:
                 note_get_handler(note=m.id)(m)  # invoke note handler
-            else:
-                log.warn(f"(mido) {msg.type}: MIDI message type not supported")
+        else:
+            log.warn(f"(mido) {msg.type}: MIDI message type not supported")
     except Exception as e:
-        log.error(f'{"CC" if m.type == Message.TYPE_CC else "NOTE"}:{m.id} errored')
+        log.error(f'{"CC" if m.type == TYPE_CC else "NOTE"}:{m.id} errored')
         __handle_except(e)
 
 
