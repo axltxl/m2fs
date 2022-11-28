@@ -3,6 +3,7 @@
 import os
 import sys
 import traceback
+import importlib.util
 
 from docopt import docopt, DocoptExit
 
@@ -34,7 +35,7 @@ def __parse_args(argv: list[str]) -> dict:
     """midi2sim
 
     Usage:
-        midi2sim
+        midi2sim --config <config_file>
         midi2sim midi [(list)]
         midi2sim sim var get <variable>
     """
@@ -51,7 +52,6 @@ def main(argv: list[str]) -> int:
 
         # Get command from command line
         # (already parsed to options)
-        # if command is not None:
 
         # MIDI options
         if options["midi"]:
@@ -71,7 +71,7 @@ def main(argv: list[str]) -> int:
         # If no command is provided, it's gonna
         # do its thing and run the event loop
         else:
-            event_loop()
+            event_loop(config_file=options["<config_file>"])
             return 0
 
     except DocoptExit:
@@ -124,11 +124,35 @@ def __cmd_ls() -> None:
     __log_ports(ports["input"])
     log.info("List of MIDI output port(s) found:")
     __log_ports(ports["output"])
-    log.info("List of MIDI I/O port(s) found:")
-    __log_ports(ports["io"])
 
 
-def event_loop() -> None:
+def __load_mod_from_file(config_file: str):
+    """
+    Append configuration file directory to sys.path
+
+    This will make it possible to import a configuration file
+    set by the user
+    """
+
+    config_file_abs_path = os.path.expanduser(os.path.realpath(config_file))
+    module_name = "config"
+
+    log.debug(
+        f"Attempting to load config module at: {config_file_abs_path} (module_name={module_name}"
+    )
+
+    spec = importlib.util.spec_from_file_location(module_name, config_file_abs_path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    log.info(
+        f"{module_name}@{config_file_abs_path}: config module successfully loaded!"
+    )
+
+    return module
+
+
+def event_loop(config_file: str) -> None:
     """
     Main event loop
 
@@ -141,5 +165,11 @@ def event_loop() -> None:
     simc.poll_start()
 
     # Start processing MIDI messages already
-    # FIXME: dynamic config setting
-    # midi.message_pump(setup_func=config.on_init)
+    try:
+        config = __load_mod_from_file(config_file)  # Get config as a module
+        midi.message_pump(
+            setup_func=config.on_init
+        )  # Start rolling those MIDI messages
+    except ImportError:
+        log.error(f"Couldn't load configuration file: {config_file}")
+        raise
