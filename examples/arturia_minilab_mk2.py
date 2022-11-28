@@ -1,18 +1,59 @@
 # -*- coding: utf-8 -*-
 
 import math
-import midi
-import simc
-import arturia
+
+from midi2sim import simc, midi
+import midi2sim.utils.arturia as arturia
 
 # MIDI device for this configuration
 MIDI_PORT_IN = "Arturia MiniLab mkII 0"
-MIDI_PORT_OUT = "Arturia MiniLab mkII 1"
-ARTURIA_ENC_MODE = arturia.ENC_MODE_REL_1
+
+# Some basics for making life easier
+KNOB_MODE = arturia.ENC_MODE_REL_1
+
+KNOB_01_SHIFT = midi.CC_041
+KNOB_02_SHIFT = midi.CC_042
+
+KNOB_01_SWITCH = midi.NOTE_113
+KNOB_02_SWITCH = midi.NOTE_115
+
+KNOB_01 = midi.CC_021
+KNOB_02 = midi.CC_022
+KNOB_03 = midi.CC_023
+KNOB_04 = midi.CC_024
+KNOB_05 = midi.CC_025
+KNOB_06 = midi.CC_026
+KNOB_07 = midi.CC_027
+KNOB_08 = midi.CC_028
+KNOB_09 = midi.CC_029
+KNOB_10 = midi.CC_030
+KNOB_11 = midi.CC_031
+KNOB_12 = midi.CC_032
+KNOB_13 = midi.CC_033
+KNOB_14 = midi.CC_034
+KNOB_15 = midi.CC_035
+KNOB_16 = midi.CC_036
+
+PAD_01 = midi.NOTE_036
+PAD_02 = midi.NOTE_037
+PAD_03 = midi.NOTE_038
+PAD_04 = midi.NOTE_039
+PAD_05 = midi.NOTE_040
+PAD_06 = midi.NOTE_041
+PAD_07 = midi.NOTE_042
+PAD_08 = midi.NOTE_043
+PAD_09 = midi.NOTE_044
+PAD_10 = midi.NOTE_045
+PAD_11 = midi.NOTE_046
+PAD_12 = midi.NOTE_047
+PAD_13 = midi.NOTE_048
+PAD_14 = midi.NOTE_049
+PAD_15 = midi.NOTE_050
+PAD_16 = midi.NOTE_051
 
 
 def __send_evt_on_encoder_rotation(cc_value, evt_cw, evt_ccw):
-    er = arturia.get_encoder_rotation(cc_value, mode=ARTURIA_ENC_MODE)
+    er = arturia.get_encoder_rotation(cc_value, mode=KNOB_MODE)
     if er > 0:
         simc.send_event(evt_cw)
     elif er < 0:
@@ -79,25 +120,7 @@ def yawdamper_toggle(m: midi.NoteMessage) -> None:
 
 def on_autopilot_change(v: simc.SimVar) -> None:
     # FIXME: doc me
-    # if v.value:
-    #     midi.send_note_message(
-    #         port_name=MIDI_PORT_OUT, note=midi.NOTE_043, channel=0, on=True
-    #     )
-    # else:
-    #     midi.send_note_message(
-    #         port_name=MIDI_PORT_OUT, note=midi.NOTE_043, channel=0, on=False
-    #     )
-    # note_on = bool(int(v.value))
-
-    # midi.send_note_message(
-    #     port_name=MIDI_PORT_OUT,
-    #     note=midi.NOTE_043,
-    #     channel=0,
-    #     on=bool(int(v.value)),
-    #     time=0,
-    # # # )
     print("HOLA")
-    pass
 
 
 def on_init() -> None:
@@ -107,17 +130,17 @@ def on_init() -> None:
 
     # CC handlers
     # ----------------------
-    midi.subscribe_to_cc(cc=midi.CC_112, handler=ap_hdg_incdec)
-    midi.subscribe_to_cc(cc=midi.CC_074, handler=ap_alt_incdec)
-    midi.subscribe_to_cc(cc=midi.CC_018, handler=ap_vs_incdec)
+    midi.subscribe_to_cc(cc=KNOB_01, handler=ap_hdg_incdec)
+    midi.subscribe_to_cc(cc=KNOB_02, handler=ap_alt_incdec)
+    midi.subscribe_to_cc(cc=KNOB_10, handler=ap_vs_incdec)
 
     # Note handlers
     # ----------------------
-    midi.subscribe_to_note(note=midi.NOTE_113, handler=ap_hdg_set)
-    midi.subscribe_to_note(note=midi.NOTE_037, handler=ap_vs_toggle)
-    midi.subscribe_to_note(note=midi.NOTE_042, handler=yawdamper_toggle)
-    midi.subscribe_to_note(note=midi.NOTE_043, handler=ap_toggle)
-    midi.subscribe_to_note(note=midi.NOTE_036, handler=ap_hdg_mode_toggle)
+    midi.subscribe_to_note(note=KNOB_01_SWITCH, handler=ap_hdg_set)
+    midi.subscribe_to_note(note=PAD_02, handler=ap_vs_toggle)
+    midi.subscribe_to_note(note=PAD_07, handler=yawdamper_toggle)
+    midi.subscribe_to_note(note=PAD_08, handler=ap_toggle)
+    midi.subscribe_to_note(note=PAD_01, handler=ap_hdg_mode_toggle)
 
     # SimVar change handlers
     # ----------------------

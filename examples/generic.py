@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import math
-import midi
-import simc
+from midi2sim import simc, midi
 
 # MIDI device for this configuration
 MIDI_PORT = "Generic"
