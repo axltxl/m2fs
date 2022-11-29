@@ -4,8 +4,14 @@ import threading
 
 import SimConnect
 
+from . import mobiflight
 from .log import log
-from .sim import connect
+from .sim import (
+    get_client,
+    get_backend,
+    SIMCONNECT_BACKEND_DEFAULT,
+    SIMCONNECT_BACKEND_MOBIFLIGHT,
+)
 
 
 class SimVarException(Exception):
@@ -34,12 +40,17 @@ __simvar_aq_mutex = threading.Lock()
 def __get_aq() -> SimConnect.AircraftRequests:
     # NOTE: critical section shared with __poll thread
     # SEE: poll.py
+    global __simvar_aq
     with __simvar_aq_mutex:
-        global __simvar_aq
         if __simvar_aq is None:
-            __simvar_aq = SimConnect.AircraftRequests(
-                connect(), _time=SIMCONNECT_CACHE_TTL_MS
-            )
+            if get_backend() == SIMCONNECT_BACKEND_MOBIFLIGHT:
+                __simvar_aq = mobiflight.MobiFlightVariableRequests(get_client())
+                # FIXME
+                __simvar_aq.clear_sim_variables()
+            else:
+                __simvar_aq = SimConnect.AircraftRequests(
+                    get_client(), _time=SIMCONNECT_CACHE_TTL_MS
+                )
         return __simvar_aq
 
 
@@ -55,21 +66,49 @@ class SimVar:
         return f"SimVar(name={self.name}, description={self.description}, value={self.value}"
 
 
-def get_variable(name: str) -> (SimVar | None):
+def __get_variable_default(name: str) -> (SimVar | None):
     """Get SimVar from flight sim"""
 
     v = __get_aq().find(name)
     if v is not None:
         value = v.get()
-        log.verbose(f"SimVar GET {name} => {value}")
         return SimVar(name=name, description=v.description, value=value)
 
     # NOTE: Unfortunately, not all SimVars are supported out of the box
     # Only the ones supported by PySimConnect, which are a lot indeed and
     # will do much for you, but still, do not expect to get just any SimVar
     raise SimVarException(
-        f"SimVar GET {name}: couldn't find it. SimVar does not exist or likely not supported by PySimConnect library! :("
+        f"SimVar GET {name}: couldn't find it. SimVar does not exist or likely not supported by current SimConnect backend ..."
     )
+
+
+# FIXME: doc me
+# CONTINUE HERE: WARNING:SimConnect.SimConnect:SIMCONNECT_EXCEPTION_ALREADY_CREATED
+def __get_variable_mobiflight(name: str) -> (SimVar | None):
+    """Get SimVar from flight sim"""
+
+    v = __get_aq()
+    if v is not None:
+        value = v.get(name)
+        return SimVar(name=name, description="", value=value)
+
+    # NOTE: Unfortunately, not all SimVars are supported out of the box
+    # Only the ones supported by PySimConnect, which are a lot indeed and
+    # will do much for you, but still, do not expect to get just any SimVar
+    raise SimVarException(
+        f"SimVar GET {name}: couldn't find it. SimVar does not exist or likely not supported by current SimConnect backend ..."
+    )
+
+
+def get_variable(name: str) -> (SimVar | None):
+    """Get SimVar from flight sim"""
+
+    # FIXME: doc me
+    if get_backend() == SIMCONNECT_BACKEND_MOBIFLIGHT:
+        v = __get_variable_mobiflight(name)
+    else:
+        v = __get_variable_default(name)
+    log.verbose(f"SimVar GET {name} => {v.value}")
 
 
 def set_variable(name: str, value: any) -> None:
@@ -84,5 +123,5 @@ def set_variable(name: str, value: any) -> None:
         # Only the ones supported by PySimConnect, which are a lot indeed and
         # will do much for you, but still, do not expect to get just any SimVar
         raise SimVarException(
-            f"SimVar SET {name}: couldn't find it. SimVar does not exist or likely not supported by PySimConnect library! :("
+            f"SimVar SET {name}: couldn't find it. SimVar does not exist or likely not supported by current SimConnect backend ..."
         )

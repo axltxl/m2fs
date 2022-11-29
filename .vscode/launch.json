@@ -37,7 +37,9 @@
                 "sim",
                 "var",
                 "get",
-                "${input:SimVarGet}"
+                "${input:SimVarGet}",
+                "--simconnect-backend",
+                "${input:SimConnectBackend}"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
@@ -51,8 +53,12 @@
             "default": "HEADING_INDICATOR"
         },
         {
-            "id": "SimVarSet",
-            "type": "promptString",
+            "id": "SimConnectBackend",
+            "type": "pickString",
+            "options": [
+                "default",
+                "mobiflight"
+            ],
             "description": "SimVar name to set",
             "default": "CAMERA_STATE"
         }

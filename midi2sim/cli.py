@@ -35,12 +35,22 @@ def __parse_args(argv: list[str]) -> dict:
     """midi2sim
 
     Usage:
+        midi2sim [--simconnect-backend <simconnect_backend>]
         midi2sim --config <config_file>
         midi2sim midi [(list)]
-        midi2sim sim var get <variable>
+        midi2sim sim var get <variable> [--simconnect-backend <simconnect_backend>]
     """
 
     return docopt(__parse_args.__doc__, argv=argv, version=PKG_VERSION)
+
+
+# FIXME
+def __get_simconnect_backend(backend: str) -> int:
+    if backend == "default":
+        return simc.SIMCONNECT_BACKEND_DEFAULT
+    if backend == "mobiflight":
+        return simc.SIMCONNECT_BACKEND_MOBIFLIGHT
+    return simc.SIMCONNECT_BACKEND_DEFAULT
 
 
 def main(argv: list[str]) -> int:
@@ -66,12 +76,22 @@ def main(argv: list[str]) -> int:
 
                 # Get/Set variable
                 if options["get"]:
-                    __cmd_simget(options["<variable>"])
+                    __cmd_simget(
+                        options["<variable>"],
+                        simconnect_backend=__get_simconnect_backend(
+                            options["<simconnect_backend>"]
+                        ),
+                    )
 
         # If no command is provided, it's gonna
         # do its thing and run the event loop
         else:
-            event_loop(config_file=options["<config_file>"])
+            event_loop(
+                config_file=options["<config_file>"],
+                simconnect_backend=__get_simconnect_backend(
+                    options["<simconnect_backend>"]
+                ),
+            )
             return 0
 
     except DocoptExit:
@@ -92,9 +112,10 @@ def __log_ports(ports: list[str]) -> None:
         log.warn("No device found :(")
 
 
-def __cmd_simget(variable: str) -> None:
+def __cmd_simget(variable: str, simconnect_backend: int) -> None:
     """CLI command to get variable from flight sim"""
 
+    simc.set_backend(simconnect_backend)
     simc.connect()  # Connect to flight sim
     simvar = simc.get_variable(variable)
     if simvar is not None:
@@ -152,7 +173,7 @@ def __load_mod_from_file(config_file: str):
     return module
 
 
-def event_loop(config_file: str) -> None:
+def event_loop(*, config_file: str, simconnect_backend: int) -> None:
     """
     Main event loop
 
@@ -160,6 +181,9 @@ def event_loop(config_file: str) -> None:
     process MIDI messages and do as it pleases
     with them
     """
+
+    # FIXME
+    simc.set_backend(simconnect_backend)
 
     # Start polling for simc changes ... (does not block)
     simc.poll_start()
