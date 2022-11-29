@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-__all__ = ["simc", "midi", "logger"]
+__all__ = ["simc", "midi", "logger", "utils"]
