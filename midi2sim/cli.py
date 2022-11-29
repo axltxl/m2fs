@@ -113,8 +113,7 @@ def __log_ports(ports: list[str]) -> None:
 def __cmd_simget(variable: str, simconnect_backend: int) -> None:
     """CLI command to get variable from flight sim"""
 
-    simc.set_backend(simconnect_backend)
-    simc.connect()  # Connect to flight sim
+    simc.connect(backend=simconnect_backend)  # Connect to flight sim
     simvar = simc.get_variable(variable)
     if simvar is not None:
         log.info(f"SimConnect: {variable} = {simvar}")
@@ -181,8 +180,7 @@ def event_loop(*, config_file: str, simconnect_backend: int) -> None:
     """
 
     # Proceed to connect to simulator
-    simc.set_backend(simconnect_backend)
-    simc.connect()
+    simc.connect(backend=simconnect_backend)
 
     # Start polling for simc changes ... (does not block)
     simc.poll_start()

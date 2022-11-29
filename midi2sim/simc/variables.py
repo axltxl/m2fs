@@ -25,7 +25,7 @@ __simvar_aq = None
 __simvar_aq_mutex = threading.Lock()
 
 # SimConnect client
-__smc_client = None
+__simc_client = None
 
 
 def cleanup():
@@ -47,7 +47,7 @@ def update_client(client: SimConnect.SimConnect):
 def __get_aq() -> SimConnect.AircraftRequests:
     # NOTE: critical section shared with __poll thread
     # SEE: poll.py
-    global __simvar_aq
+    global __simvar_aq, __simc_client
     with __simvar_aq_mutex:
         if __simvar_aq is None:
             if get_backend() == SIMCONNECT_BACKEND_MOBIFLIGHT:

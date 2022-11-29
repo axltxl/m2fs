@@ -76,14 +76,20 @@ def ap_hdg_incdec(m: midi.ControlChangeMessage) -> None:
 def ap_hdg_set(m: midi.NoteMessage) -> None:
     """Heading bug set"""
 
-    current_heading = int(math.degrees(simc.get_variable("HEADING_INDICATOR").value))
+    if simc.get_backend() == simc.SIMCONNECT_BACKEND_DEFAULT:
+        simvar_name = "HEADING_INDICATOR"
+    if simc.get_backend() == simc.SIMCONNECT_BACKEND_MOBIFLIGHT:
+        simvar_name = "(A:HEADING INDICATOR,radians)"
+
+    current_heading = math.ceil(math.degrees(simc.get_variable(simvar_name).value))
     simc.send_event("HEADING_BUG_SET", current_heading)
 
 
 def ap_hdg_mode_toggle(m: midi.NoteMessage) -> None:
     """Heading mode toggle"""
 
-    simc.send_event("MobiFlight.WT_CJ4_AP_HDG_PRESSED")
+    if m.on:
+        simc.send_event("MobiFlight.WT_CJ4_AP_HDG_PRESSED")
 
 
 def ap_alt_incdec(m: midi.ControlChangeMessage) -> None:
@@ -95,7 +101,8 @@ def ap_alt_incdec(m: midi.ControlChangeMessage) -> None:
 def ap_vs_toggle(m: midi.NoteMessage):
     """Toggle VS mode"""
 
-    simc.send_event("MobiFlight.WT_CJ4_AP_VS_PRESSED")
+    if m.on:
+        simc.send_event("MobiFlight.WT_CJ4_AP_VS_PRESSED")
 
 
 def ap_vs_incdec(m: midi.ControlChangeMessage) -> None:
@@ -109,7 +116,6 @@ def ap_vs_incdec(m: midi.ControlChangeMessage) -> None:
 def ap_toggle(m: midi.NoteMessage):
     """Toggle autopilot"""
 
-    # __send_evt_on_note_toggle(m, "AUTOPILOT_ON", "AUTOPILOT_OFF")
     if m.on:
         simc.send_event("AP_MASTER")
 
@@ -117,7 +123,8 @@ def ap_toggle(m: midi.NoteMessage):
 def yawdamper_toggle(m: midi.NoteMessage) -> None:
     """Toggle yaw damper"""
 
-    simc.send_event("YAW_DAMPER_TOGGLE")
+    if m.on:
+        simc.send_event("YAW_DAMPER_TOGGLE")
 
 
 def on_autopilot_change(v: simc.SimVar) -> None:

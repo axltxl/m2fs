@@ -15,13 +15,11 @@ class TestSimConnectVariable:
         is consistent in both backends
         """
 
-        simc.set_backend(simc.SIMCONNECT_BACKEND_DEFAULT)
-        simc.connect(timeout=self.timeout)
+        simc.connect(timeout=self.timeout, backend=simc.SIMCONNECT_BACKEND_DEFAULT)
         v1 = simc.get_variable(self.test_var_default)
         simc.disconnect()
 
-        simc.set_backend(simc.SIMCONNECT_BACKEND_MOBIFLIGHT)
-        simc.connect(timeout=self.timeout)
+        simc.connect(timeout=self.timeout, backend=simc.SIMCONNECT_BACKEND_MOBIFLIGHT)
         v2 = simc.get_variable(self.test_var_mobiflight)
         simc.disconnect()
 
