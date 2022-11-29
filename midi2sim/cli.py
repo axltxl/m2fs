@@ -35,8 +35,7 @@ def __parse_args(argv: list[str]) -> dict:
     """midi2sim
 
     Usage:
-        midi2sim [--simconnect-backend <simconnect_backend>]
-        midi2sim --config <config_file>
+        midi2sim --config <config_file> [--simconnect-backend <simconnect_backend>]
         midi2sim midi [(list)]
         midi2sim sim var get <variable> [--simconnect-backend <simconnect_backend>]
     """
@@ -44,8 +43,7 @@ def __parse_args(argv: list[str]) -> dict:
     return docopt(__parse_args.__doc__, argv=argv, version=PKG_VERSION)
 
 
-# FIXME
-def __get_simconnect_backend(backend: str) -> int:
+def __get_simconnect_backend_id(backend: str) -> int:
     if backend == "default":
         return simc.SIMCONNECT_BACKEND_DEFAULT
     if backend == "mobiflight":
@@ -78,7 +76,7 @@ def main(argv: list[str]) -> int:
                 if options["get"]:
                     __cmd_simget(
                         options["<variable>"],
-                        simconnect_backend=__get_simconnect_backend(
+                        simconnect_backend=__get_simconnect_backend_id(
                             options["<simconnect_backend>"]
                         ),
                     )
@@ -88,7 +86,7 @@ def main(argv: list[str]) -> int:
         else:
             event_loop(
                 config_file=options["<config_file>"],
-                simconnect_backend=__get_simconnect_backend(
+                simconnect_backend=__get_simconnect_backend_id(
                     options["<simconnect_backend>"]
                 ),
             )
@@ -182,8 +180,9 @@ def event_loop(*, config_file: str, simconnect_backend: int) -> None:
     with them
     """
 
-    # FIXME
+    # Proceed to connect to simulator
     simc.set_backend(simconnect_backend)
+    simc.connect()
 
     # Start polling for simc changes ... (does not block)
     simc.poll_start()

@@ -109,7 +109,9 @@ def ap_vs_incdec(m: midi.ControlChangeMessage) -> None:
 def ap_toggle(m: midi.NoteMessage):
     """Toggle autopilot"""
 
-    __send_evt_on_note_toggle(m, "AUTOPILOT_ON", "AUTOPILOT_OFF")
+    # __send_evt_on_note_toggle(m, "AUTOPILOT_ON", "AUTOPILOT_OFF")
+    if m.on:
+        simc.send_event("AP_MASTER")
 
 
 def yawdamper_toggle(m: midi.NoteMessage) -> None:

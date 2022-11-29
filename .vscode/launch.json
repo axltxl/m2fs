@@ -13,7 +13,9 @@
             "justMyCode": true,
             "args": [
                 "--config",
-                "${workspaceFolder}/examples/arturia_minilab_mk2.py"
+                "${workspaceFolder}/examples/arturia_minilab_mk2.py",
+                "--simconnect-backend",
+                "${input:SimConnectBackend}"
             ]
         },
         {
@@ -60,7 +62,7 @@
                 "mobiflight"
             ],
             "description": "SimVar name to set",
-            "default": "CAMERA_STATE"
+            "default": "default"
         }
     ]
 }

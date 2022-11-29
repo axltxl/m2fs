@@ -3,27 +3,15 @@
 import threading
 
 import SimConnect
+from .mobiflight import MobiFlightVariableRequests
 
-from . import mobiflight
 from .log import log
-from .sim import (
-    get_client,
-    get_backend,
-    SIMCONNECT_BACKEND_DEFAULT,
+from .backend import get_backend
+
+from .const import (
+    SIMCONNECT_CACHE_TTL_MS,
     SIMCONNECT_BACKEND_MOBIFLIGHT,
 )
-
-
-class SimVarException(Exception):
-    """SimVar error"""
-
-    pass
-
-
-# For how long is Python-SimConnect caching
-# local SimVar data?
-SIMCONNECT_CACHE_TICK_RATE_HZ = 33
-SIMCONNECT_CACHE_TTL_MS = 1000.0 / SIMCONNECT_CACHE_TICK_RATE_HZ
 
 # SimConnect.AircraftRequests object goes in here
 # Once created, it'll update its SimVars' data from
@@ -36,6 +24,25 @@ __simvar_aq = None
 # (SIMCONNECT_CACHE_TICK_RATE_HZ times per second to be exact)
 __simvar_aq_mutex = threading.Lock()
 
+# SimConnect client
+__smc_client = None
+
+
+def cleanup():
+    """Housekeeping"""
+
+    global __simvar_aq, __simc_client
+    __simvar_aq = None
+    __simc_client = None
+
+
+def update_client(client: SimConnect.SimConnect):
+    global __simc_client
+    # we need to make sure that global objects in variables
+    # module have been reset upon changing a client backend
+    cleanup()
+    __simc_client = client
+
 
 def __get_aq() -> SimConnect.AircraftRequests:
     # NOTE: critical section shared with __poll thread
@@ -44,14 +51,19 @@ def __get_aq() -> SimConnect.AircraftRequests:
     with __simvar_aq_mutex:
         if __simvar_aq is None:
             if get_backend() == SIMCONNECT_BACKEND_MOBIFLIGHT:
-                __simvar_aq = mobiflight.MobiFlightVariableRequests(get_client())
-                # FIXME
+                __simvar_aq = MobiFlightVariableRequests(__simc_client)
                 __simvar_aq.clear_sim_variables()
             else:
                 __simvar_aq = SimConnect.AircraftRequests(
-                    get_client(), _time=SIMCONNECT_CACHE_TTL_MS
+                    __simc_client, _time=SIMCONNECT_CACHE_TTL_MS
                 )
         return __simvar_aq
+
+
+class SimVarException(Exception):
+    """SimVar error"""
+
+    pass
 
 
 class SimVar:
@@ -75,15 +87,11 @@ def __get_variable_default(name: str) -> (SimVar | None):
         return SimVar(name=name, description=v.description, value=value)
 
     # NOTE: Unfortunately, not all SimVars are supported out of the box
-    # Only the ones supported by PySimConnect, which are a lot indeed and
-    # will do much for you, but still, do not expect to get just any SimVar
     raise SimVarException(
         f"SimVar GET {name}: couldn't find it. SimVar does not exist or likely not supported by current SimConnect backend ..."
     )
 
 
-# FIXME: doc me
-# CONTINUE HERE: WARNING:SimConnect.SimConnect:SIMCONNECT_EXCEPTION_ALREADY_CREATED
 def __get_variable_mobiflight(name: str) -> (SimVar | None):
     """Get SimVar from flight sim"""
 
@@ -103,19 +111,24 @@ def __get_variable_mobiflight(name: str) -> (SimVar | None):
 def get_variable(name: str) -> (SimVar | None):
     """Get SimVar from flight sim"""
 
-    # FIXME: doc me
+    # Get proper AircraftRequests object that is
+    # correspondent to current backend
     if get_backend() == SIMCONNECT_BACKEND_MOBIFLIGHT:
         v = __get_variable_mobiflight(name)
     else:
         v = __get_variable_default(name)
     log.verbose(f"SimVar GET {name} => {v.value}")
+    return v
 
 
 def set_variable(name: str, value: any) -> None:
     """Set SimVar on flight sim :)"""
 
     log.verbose(f"SimVar SET {name} => {value}")
-    v = __get_aq().find(name)
+    if get_backend() == SIMCONNECT_BACKEND_MOBIFLIGHT:
+        v = __get_aq()
+    else:
+        v = __get_aq().find(name)
     if v is not None:
         v.set(value)
     else:
