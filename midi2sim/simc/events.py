@@ -3,7 +3,7 @@
 import SimConnect
 from . import mobiflight
 from .log import log
-from .sim import get_client
+from .client import get_client
 
 
 class SimEventException(Exception):

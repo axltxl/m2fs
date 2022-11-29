@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .sim import (
+from .client import (
     connect,
     disconnect,
     set_backend,
