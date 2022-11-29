@@ -5,11 +5,11 @@ LOG_LVL_DEBUG = 0
 LOG_LVL_INFO = 1
 LOG_LVL_WARN = 2
 LOG_LVL_FATAL = 3
-# LOG_LVL = LOG_LVL_DEBUG  # FIXME: hardcoded (for now)
-LOG_LVL = LOG_LVL_INFO  # FIXME: hardcoded (for now)
+# LOG_LVL = LOG_LVL_VERBOSE  # FIXME: hardcoded (for now)
+LOG_LVL = LOG_LVL_DEBUG  # FIXME: hardcoded (for now)
 
 LEVEL_STR = {
-    LOG_LVL_DEBUG: "VERBOSE",
+    LOG_LVL_VERBOSE: "VERBOSE",
     LOG_LVL_DEBUG: "DEBUG",
     LOG_LVL_INFO: "INFO",
     LOG_LVL_WARN: "WARN",
