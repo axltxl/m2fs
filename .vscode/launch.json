@@ -74,6 +74,7 @@
                 "(L:WT_CJ4_VS_ON)",
                 "(L:WT_CJ4_FLC_ON)",
                 "(L:WT_CJ4_ALT_HOLD)",
+                "(L:LIGHTING_Knob_Master)",
                 "(A:AUTOPILOT HEADING LOCK DIR, radians)",
                 "(A:AUTOPILOT VERTICAL LOCK DIR:1)",
                 "(A:AUTOPILOT AIRSPEED LOCK DIR:1)",
@@ -88,8 +89,8 @@
                 "Python-SimConnect",
                 "MobiFlight-SimConnect"
             ],
-            "description": "SimVar name to set",
-            "default": "Python-SimConnect"
+            "description": "SimConnect backend",
+            "default": "MobiFlight-SimConnect"
         }
     ]
 }

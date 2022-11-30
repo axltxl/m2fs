@@ -10,6 +10,8 @@ from .port import (
     send_cc_message,
 )
 
+from .message import TYPE_CC, TYPE_PITCHWHEEL, TYPE_NOTE
+
 from .cc import (
     ControlChangeMessage,
     subscribe as subscribe_to_cc,
