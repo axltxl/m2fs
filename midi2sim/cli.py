@@ -7,12 +7,31 @@ import importlib.util
 
 from docopt import docopt, DocoptExit
 
-from . import simc, midi
 from .logger import Logger
+from .simc import (
+    SIMCONNECT_BACKEND_DEFAULT,
+    SIMCONNECT_BACKEND_MOBIFLIGHT,
+    SIMCONNECT_BACKEND_DEFAULT_NAME,
+    SIMCONNECT_BACKEND_MOBIFLIGHT_NAME,
+    connect as simc_connect,
+    disconnect as simc_disconnect,
+    get_variable as simc_get_variable,
+    poll_start as simc_poll_start,
+    poll_stop as simc_poll_stop,
+)
+from .midi import (
+    list_ports as midi_list_ports,
+    cleanup as midi_cleanup,
+    message_pump as midi_message_pump,
+)
 
 log = Logger(prefix=">> ")
 
 PKG_VERSION = "0.1.0"
+PKG_NAME = "midi2sim"
+CLI_DEFAULT_CONFIG_DIR = os.path.join(os.path.expanduser("~"), PKG_NAME)
+CLI_DEFAULT_CONFIG_FILE = os.path.join(CLI_DEFAULT_CONFIG_DIR, "config.py")
+CLI_DEFAULT_SIMCONNECT_BACKEND = SIMCONNECT_BACKEND_DEFAULT_NAME
 
 
 def __handle_except(e):
@@ -32,23 +51,38 @@ def __handle_except(e):
 
 
 def __parse_args(argv: list[str]) -> dict:
-    """midi2sim
+    """{pkg_name}
 
     Usage:
-        midi2sim --config <config_file> [--simconnect-backend <simconnect_backend>]
-        midi2sim midi [(list)]
-        midi2sim sim var get <variable> [--simconnect-backend <simconnect_backend>]
+        {pkg_name} --config <config_file> [--simconnect-backend <simconnect_backend>]
+        {pkg_name} midi [(list)]
+        {pkg_name} sim var get <variable> [--simconnect-backend <simconnect_backend>]
+
+    Options:
+        -h --help                         Show this screen.
+        --version                         Show version.
+        --config -c FILE                  Configuration file location (default: {default_config_file})
+        --simconnect-backend -s BACKEND   SimConnect client backend (default: {default_smc_backend})
     """
 
-    return docopt(__parse_args.__doc__, argv=argv, version=PKG_VERSION)
+    return docopt(
+        __parse_args.__doc__.format(
+            pkg_name=PKG_NAME,
+            default_config_file=CLI_DEFAULT_CONFIG_FILE,
+            default_smc_backend=CLI_DEFAULT_SIMCONNECT_BACKEND,
+        ),
+        argv=argv,
+        version=PKG_VERSION,
+    )
 
 
 def __get_simconnect_backend_id(backend: str) -> int:
-    if backend == "default":
-        return simc.SIMCONNECT_BACKEND_DEFAULT
-    if backend == "mobiflight":
-        return simc.SIMCONNECT_BACKEND_MOBIFLIGHT
-    return simc.SIMCONNECT_BACKEND_DEFAULT
+    if backend == SIMCONNECT_BACKEND_DEFAULT_NAME:
+        return SIMCONNECT_BACKEND_DEFAULT
+    if backend == SIMCONNECT_BACKEND_MOBIFLIGHT_NAME:
+        return SIMCONNECT_BACKEND_MOBIFLIGHT
+    log.warn(f"{backend}: unrecognized SimConnect backend provided, using default ...")
+    return SIMCONNECT_BACKEND_DEFAULT
 
 
 def main(argv: list[str]) -> int:
@@ -77,7 +111,7 @@ def main(argv: list[str]) -> int:
                     __cmd_simget(
                         options["<variable>"],
                         simconnect_backend=__get_simconnect_backend_id(
-                            options["<simconnect_backend>"]
+                            options["--simconnect-backend"]
                         ),
                     )
 
@@ -85,9 +119,9 @@ def main(argv: list[str]) -> int:
         # do its thing and run the event loop
         else:
             event_loop(
-                config_file=options["<config_file>"],
+                config_file=options["--config"],
                 simconnect_backend=__get_simconnect_backend_id(
-                    options["<simconnect_backend>"]
+                    options["--simconnect-backend"]
                 ),
             )
             return 0
@@ -113,8 +147,8 @@ def __log_ports(ports: list[str]) -> None:
 def __cmd_simget(variable: str, simconnect_backend: int) -> None:
     """CLI command to get variable from flight sim"""
 
-    simc.connect(backend=simconnect_backend)  # Connect to flight sim
-    simvar = simc.get_variable(variable)
+    simc_connect(backend=simconnect_backend)  # Connect to flight sim
+    simvar = simc_get_variable(variable)
     if simvar is not None:
         log.info(f"SimConnect: {variable} = {simvar}")
 
@@ -123,21 +157,21 @@ def __cleanup():
     """Housekeeping is done here"""
 
     # Stop polling
-    simc.poll_stop()
+    simc_poll_stop()
 
     # Disconnect from simulator
-    simc.disconnect()
+    simc_disconnect()
 
     # Take care of business on the MIDI
     # side of things
-    midi.cleanup()
+    midi_cleanup()
 
 
 def __cmd_ls() -> None:
     """Process command argument"""
 
     log.info("Listing MIDI port(s) ...")
-    ports = midi.list_ports()
+    ports = midi_list_ports()
     log.info("List of MIDI input port(s) found:")
     __log_ports(ports["input"])
     log.info("List of MIDI output port(s) found:")
@@ -180,15 +214,15 @@ def event_loop(*, config_file: str, simconnect_backend: int) -> None:
     """
 
     # Proceed to connect to simulator
-    simc.connect(backend=simconnect_backend)
+    simc_connect(backend=simconnect_backend)
 
     # Start polling for simc changes ... (does not block)
-    simc.poll_start()
+    simc_poll_start()
 
     # Start processing MIDI messages already
     try:
         config = __load_mod_from_file(config_file)  # Get config as a module
-        midi.message_pump(
+        midi_message_pump(
             setup_func=config.on_init
         )  # Start rolling those MIDI messages
     except ImportError:

@@ -12,10 +12,21 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--config",
-                "${workspaceFolder}/examples/arturia_minilab_mk2.py",
+                "-c",
+                "${workspaceFolder}/examples/arturia/minilab_mk2.py",
                 "--simconnect-backend",
                 "${input:SimConnectBackend}"
+            ]
+        },
+        {
+            "name": "debug (help)",
+            "type": "python",
+            "request": "launch",
+            "module": "midi2sim",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--help"
             ]
         },
         {
@@ -50,19 +61,35 @@
     "inputs": [
         {
             "id": "SimVarGet",
-            "type": "promptString",
             "description": "SimVar to query",
+            "type": "pickString",
+            "options": [
+                "HEADING_INDICATOR",
+                "(A:HEADING INDICATOR,radians)",
+                "(A:HEADING INDICATOR,degrees)",
+                // Working Title C4J
+                "(L:WT_CJ4_HDG_ON)",
+                "(L:WT_CJ4_NAV_ON)",
+                "(L:WT_CJ4_VNAV_ON)",
+                "(L:WT_CJ4_VS_ON)",
+                "(L:WT_CJ4_FLC_ON)",
+                "(L:WT_CJ4_ALT_HOLD)",
+                "(A:AUTOPILOT HEADING LOCK DIR, radians)",
+                "(A:AUTOPILOT VERTICAL LOCK DIR:1)",
+                "(A:AUTOPILOT AIRSPEED LOCK DIR:1)",
+                "(A:AUTOPILOT ALTITUDE LOCK VAR:1)"
+            ],
             "default": "HEADING_INDICATOR"
         },
         {
             "id": "SimConnectBackend",
             "type": "pickString",
             "options": [
-                "default",
-                "mobiflight"
+                "Python-SimConnect",
+                "MobiFlight-SimConnect"
             ],
             "description": "SimVar name to set",
-            "default": "default"
+            "default": "Python-SimConnect"
         }
     ]
 }

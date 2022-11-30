@@ -4,6 +4,8 @@ A dedicated module of utilities for using midi2sim
 on an Arturia MiniLab mkII
 """
 
+from ..simc import send_event as simc_send_evt
+
 ENC_MODE_ABS = 0x0
 ENC_MODE_REL_2 = 0x2
 ENC_MODE_REL_3 = 0x3
@@ -65,3 +67,20 @@ def get_encoder_rotation(value: int, *, mode=ENC_MODE_REL_1):
         return __get_rotation(value, ENC_MODE_REL_3_CW_RANGE, ENC_MODE_REL_3_CCW_RANGE)
 
     return 0
+
+
+# FIXME: doc me
+def send_evt_on_encoder_rotation(cc_value, *, evt_cw, evt_ccw, mode):
+    er = get_encoder_rotation(cc_value, mode=mode)
+    if er > 0:
+        simc_send_evt(evt_cw)
+    elif er < 0:
+        simc_send_evt(evt_ccw)
+
+
+# FIXME: doc me
+def send_evt_on_note_toggle(note, *, evt_on, evt_off):
+    if note.on:
+        simc_send_evt(evt_on)
+    else:
+        simc_send_evt(evt_off)

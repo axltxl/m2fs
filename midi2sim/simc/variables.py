@@ -75,7 +75,7 @@ class SimVar:
         self.value = value
 
     def __str__(self) -> str:
-        return f"SimVar(name={self.name}, description={self.description}, value={self.value}"
+        return f"SimVar(name='{self.name}', description='{self.description}', value='{self.value}')"
 
 
 def __get_variable_default(name: str) -> (SimVar | None):

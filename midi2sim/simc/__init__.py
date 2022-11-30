@@ -8,6 +8,8 @@ from .client import (
 from .const import (
     SIMCONNECT_BACKEND_DEFAULT,
     SIMCONNECT_BACKEND_MOBIFLIGHT,
+    SIMCONNECT_BACKEND_DEFAULT_NAME,
+    SIMCONNECT_BACKEND_MOBIFLIGHT_NAME,
 )
 
 from .backend import get_backend

@@ -3,7 +3,7 @@
 import math
 
 from midi2sim import simc, midi
-import midi2sim.utils.arturia as arturia
+from midi2sim.utils import arturia
 
 # MIDI device for this configuration
 MIDI_PORT_IN = "Arturia MiniLab mkII 0"
@@ -52,36 +52,20 @@ PAD_15 = midi.NOTE_050
 PAD_16 = midi.NOTE_051
 
 
-def __send_evt_on_encoder_rotation(cc_value, evt_cw, evt_ccw):
-    er = arturia.get_encoder_rotation(cc_value, mode=KNOB_MODE)
-    if er > 0:
-        simc.send_event(evt_cw)
-    elif er < 0:
-        simc.send_event(evt_ccw)
-
-
-def __send_evt_on_note_toggle(note, evt_on, evt_off):
-    if note.on:
-        simc.send_event(evt_on)
-    else:
-        simc.send_event(evt_off)
-
-
 def ap_hdg_incdec(m: midi.ControlChangeMessage) -> None:
     """Heading bug (+/-)"""
 
-    __send_evt_on_encoder_rotation(m.value, "HEADING_BUG_INC", "HEADING_BUG_DEC")
+    arturia.send_evt_on_encoder_rotation(
+        m.value, evt_cw="HEADING_BUG_INC", evt_ccw="HEADING_BUG_DEC", mode=KNOB_MODE
+    )
 
 
 def ap_hdg_set(m: midi.NoteMessage) -> None:
     """Heading bug set"""
 
-    if simc.get_backend() == simc.SIMCONNECT_BACKEND_DEFAULT:
-        simvar_name = "HEADING_INDICATOR"
-    if simc.get_backend() == simc.SIMCONNECT_BACKEND_MOBIFLIGHT:
-        simvar_name = "(A:HEADING INDICATOR,radians)"
-
-    current_heading = math.ceil(math.degrees(simc.get_variable(simvar_name).value))
+    current_heading = math.ceil(
+        math.degrees(simc.get_variable("(A:HEADING INDICATOR,radians)").value)
+    )
     simc.send_event("HEADING_BUG_SET", current_heading)
 
 
@@ -95,7 +79,9 @@ def ap_hdg_mode_toggle(m: midi.NoteMessage) -> None:
 def ap_alt_incdec(m: midi.ControlChangeMessage) -> None:
     """AP Altitude bug (+/-)"""
 
-    __send_evt_on_encoder_rotation(m.value, "AP_ALT_VAR_INC", "AP_ALT_VAR_DEC")
+    arturia.send_evt_on_encoder_rotation(
+        m.value, evt_cw="AP_ALT_VAR_INC", evt_ccw="AP_ALT_VAR_DEC", mode=KNOB_MODE
+    )
 
 
 def ap_vs_toggle(m: midi.NoteMessage):
@@ -108,8 +94,10 @@ def ap_vs_toggle(m: midi.NoteMessage):
 def ap_vs_incdec(m: midi.ControlChangeMessage) -> None:
     """VS Mode knob (+/-)"""
 
-    __send_evt_on_encoder_rotation(
-        m.value, "MobiFlight.WT_CJ4_AP_VS_INC", "MobiFlight.WT_CJ4_AP_VS_DEC"
+    arturia.send_evt_on_encoder_rotation(
+        m.value,
+        evt_cw="MobiFlight.WT_CJ4_AP_VS_INC",
+        evt_ccw="MobiFlight.WT_CJ4_AP_VS_DEC",
     )
 
 
@@ -133,6 +121,11 @@ def on_autopilot_change(v: simc.SimVar) -> None:
 
 
 def on_init() -> None:
+    if simc.get_backend() != simc.SIMCONNECT_BACKEND_MOBIFLIGHT:
+        raise Exception(
+            f"Only '{simc.SIMCONNECT_BACKEND_MOBIFLIGHT_NAME}' is supported in this config!"
+        )
+
     # FIXME: doc me
     # ----------------------
     midi.connect_input_port(name=MIDI_PORT_IN)
@@ -155,4 +148,4 @@ def on_init() -> None:
     # ----------------------
     # You can subscribe a function so that it gets invoked upon a change
     # on a SimVar
-    simc.subscribe_to_simvar("AUTOPILOT_MASTER", handler=on_autopilot_change)
+    simc.subscribe_to_simvar("(A:AUTOPILOT MASTER,bool)", handler=on_autopilot_change)
