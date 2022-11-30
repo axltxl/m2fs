@@ -12,10 +12,21 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--config",
+                "-c",
                 "${workspaceFolder}/examples/arturia/minilab_mk2.py",
                 "--simconnect-backend",
                 "${input:SimConnectBackend}"
+            ]
+        },
+        {
+            "name": "debug (help)",
+            "type": "python",
+            "request": "launch",
+            "module": "midi2sim",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--help"
             ]
         },
         {
@@ -58,11 +69,11 @@
             "id": "SimConnectBackend",
             "type": "pickString",
             "options": [
-                "default",
-                "mobiflight"
+                "Python-SimConnect",
+                "MobiFlight-SimConnect"
             ],
             "description": "SimVar name to set",
-            "default": "default"
+            "default": "Python-SimConnect"
         }
     ]
 }
