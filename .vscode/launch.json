@@ -61,8 +61,24 @@
     "inputs": [
         {
             "id": "SimVarGet",
-            "type": "promptString",
             "description": "SimVar to query",
+            "type": "pickString",
+            "options": [
+                "HEADING_INDICATOR",
+                "(A:HEADING INDICATOR,radians)",
+                "(A:HEADING INDICATOR,degrees)",
+                // Working Title C4J
+                "(L:WT_CJ4_HDG_ON)",
+                "(L:WT_CJ4_NAV_ON)",
+                "(L:WT_CJ4_VNAV_ON)",
+                "(L:WT_CJ4_VS_ON)",
+                "(L:WT_CJ4_FLC_ON)",
+                "(L:WT_CJ4_ALT_HOLD)",
+                "(A:AUTOPILOT HEADING LOCK DIR, radians)",
+                "(A:AUTOPILOT VERTICAL LOCK DIR:1)",
+                "(A:AUTOPILOT AIRSPEED LOCK DIR:1)",
+                "(A:AUTOPILOT ALTITUDE LOCK VAR:1)"
+            ],
             "default": "HEADING_INDICATOR"
         },
         {

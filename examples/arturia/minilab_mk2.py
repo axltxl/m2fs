@@ -121,6 +121,11 @@ def on_autopilot_change(v: simc.SimVar) -> None:
 
 
 def on_init() -> None:
+    if simc.get_backend() != simc.SIMCONNECT_BACKEND_MOBIFLIGHT:
+        raise Exception(
+            f"Only '{simc.SIMCONNECT_BACKEND_MOBIFLIGHT_NAME}' is supported in this config!"
+        )
+
     # FIXME: doc me
     # ----------------------
     midi.connect_input_port(name=MIDI_PORT_IN)

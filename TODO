@@ -1,3 +1,6 @@
+* midi2sim.config_reload()
 * Implement --log-level (-vvvvv)
-* SimConnect: replace SimConnect with https://github.com/Koseng/MSFSPythonSimConnectMobiFlightExtension ?
-    * it works the same and supports SimVars from MobiFlight :)
+* Implement: distutils distribution (setup.py)
+* py2exe
+
+
