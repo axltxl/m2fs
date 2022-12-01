@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .midi import message_pump, cleanup
+from .midi import message_pump, cleanup, bootstrap
 
 from .port import (
     list_ports,

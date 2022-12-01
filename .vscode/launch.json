@@ -19,6 +19,18 @@
             ]
         },
         {
+            "name": "debug (alt)",
+            "type": "python",
+            "request": "launch",
+            "module": "midi2sim",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-c",
+                "${workspaceFolder}/examples/arturia/minilab_mk2.py"
+            ]
+        },
+        {
             "name": "debug (help)",
             "type": "python",
             "request": "launch",

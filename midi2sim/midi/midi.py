@@ -31,7 +31,7 @@ from .pitchwheel import (
 from .exceptions import MIDIException
 
 
-def __bootstrap():
+def bootstrap():
     """Initialize MIDI backend (mido)"""
 
     # Make sure we're using rtmidi backend
@@ -116,14 +116,17 @@ def cleanup() -> None:
     port_cleanup()
 
 
-def message_pump(*, setup_func: callable) -> None:
+# def message_pump(*, setup_func: callable) -> None:
+def message_pump() -> None:
     """Main MIDI event message pump"""
 
     # Intialize MIDI backend
-    __bootstrap()
+    # FIXME
+    # __bootstrap()
 
     # Any setting up can be done at this point
-    setup_func()
+    # FIXME
+    # setup_func()
 
     # Open the port for input and output and process messages
     # with mido.open_input(__in_port_name) as in_port:
