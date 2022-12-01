@@ -120,14 +120,6 @@ def cleanup() -> None:
 def message_pump() -> None:
     """Main MIDI event message pump"""
 
-    # Intialize MIDI backend
-    # FIXME
-    # __bootstrap()
-
-    # Any setting up can be done at this point
-    # FIXME
-    # setup_func()
-
     # Open the port for input and output and process messages
     # with mido.open_input(__in_port_name) as in_port:
     in_port = get_input_port()

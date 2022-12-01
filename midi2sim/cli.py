@@ -52,20 +52,6 @@ def __handle_except(e):
 
 
 def __parse_args(argv: list[str]) -> dict:
-    # FIXME
-    # """{pkg_name}
-
-    # Usage:
-    #     {pkg_name} --config <config_file> [--simconnect-backend <simconnect_backend>]
-    #     {pkg_name} midi [(list)]
-    #     {pkg_name} sim var get <variable> [--simconnect-backend <simconnect_backend>]
-
-    # Options:
-    #     -h --help                         Show this screen.
-    #     --version                         Show version.
-    #     --config -c FILE                  Configuration file location (default: {default_config_file})
-    #     --simconnect-backend -s BACKEND   SimConnect client backend (default: {default_smc_backend})
-    # """
     """{pkg_name}
 
     Usage:
@@ -133,13 +119,6 @@ def main(argv: list[str]) -> int:
         # If no command is provided, it's gonna
         # do its thing and run the event loop
         else:
-            # FIXME
-            # event_loop(
-            #     config_file=options["--config"],
-            #     simconnect_backend=__get_simconnect_backend_id(
-            #         options["--simconnect-backend"]
-            #     ),
-            # )
             event_loop(config_file=options["--config"])
             return 0
 
@@ -231,24 +210,11 @@ def event_loop(*, config_file: str) -> None:
     with them
     """
 
-    # Proceed to connect to simulator
-    # FIXME
-    # simc_connect(backend=simconnect_backend)
-
-    # Start polling for simc changes ... (does not block)
-    # FIXME
-    # simc_poll_start()
-
-    # Start processing MIDI messages already
     try:
-        midi_bootstrap()  # FIXME: doc me
+        midi_bootstrap()  # Start the MIDI engine
         config = __load_mod_from_file(config_file)  # Get config as a module
         simc_poll_start()  # Start polling for simc changes ... (does not block)
         midi_message_pump()  # Start rolling those MIDI messages
-        # FIXME
-        # midi_message_pump(
-        #     setup_func=config.on_init
-        # )  # Start rolling those MIDI messages
     except ImportError:
         log.error(f"Couldn't load configuration file: {config_file}")
         raise

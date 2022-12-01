@@ -1,21 +1,44 @@
 # -*- coding: utf-8 -*-
+"""
+midi2sim configuration file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+MIDI controller:    Arturia MiniLab mkII
+Aircraft:           Working Title Cessna Citation CJ4
+SimConnect backend: MobiFlight-SimConnect
+"""
 
 from midi2sim import midi, simc
 from midi2sim.utils import arturia
 from midi2sim import setup
 
 # MIDI device for this configuration
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 MIDI_PORT_IN = "Arturia MiniLab mkII 0"
 
 # Some basics for making life easier
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Knobs section
+# ----------------
+
+# Main encoder mode to use for this configuration
+# (Relative 1)
 KNOB_MODE = arturia.ENC_MODE_REL_1
 
+# Knobs 1 and 9 are special, not only can they turn,
+# they also can be pushed and can be configured to send
+# different MIDI signals with the SHIFT key pressed and held
+
+# CCs sent by knobs 1 and 9 (shift)
 KNOB_01_SHIFT = midi.CC_041
 KNOB_09_SHIFT = midi.CC_042
 
+# Notes assigned to knobs 1 and 9 when pressed
 KNOB_01_SWITCH = midi.NOTE_113
 KNOB_09_SWITCH = midi.NOTE_115
 
+# CCs for all other knobs
 KNOB_01 = midi.CC_021
 KNOB_02 = midi.CC_022
 KNOB_03 = midi.CC_023
@@ -33,6 +56,7 @@ KNOB_14 = midi.CC_034
 KNOB_15 = midi.CC_035
 KNOB_16 = midi.CC_036
 
+# MIDI notes for all drum pads
 PAD_01 = midi.NOTE_036
 PAD_02 = midi.NOTE_037
 PAD_03 = midi.NOTE_038
@@ -50,6 +74,11 @@ PAD_14 = midi.NOTE_049
 PAD_15 = midi.NOTE_050
 PAD_16 = midi.NOTE_051
 
+# SimVars and events used for this aircraft
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# source: https://github.com/MobiFlight/MobiFlight-WASM-Module/blob/main/src/Sources/Code/events.txt#L4641
+# official docs about the Working title Cj4 here:
+# https://www.workingtitle.aero/packages/cj4/guides/simvars
 simevents = {
     "ap_toggle": "AP_MASTER",
     "ap_hdg_inc": "MobiFlight.WT_CJ4_AP_HDG_INC",
@@ -83,7 +112,6 @@ simevents = {
     "lights_pfd1_dec": "MobiFlight.WT_CJ4_PFD1_LIGHT_DEC",
     "lights_pfd2_inc": "MobiFlight.WT_CJ4_PFD2_LIGHT_INC",
     "lights_pfd2_dec": "MobiFlight.WT_CJ4_PFD2_LIGHT_DEC",
-    "baro1_toggle": "",
     "baro1_inc": "MobiFlight.WT_CJ4_BARO1_INC",
     "baro1_dec": "MobiFlight.WT_CJ4_BARO1_DEC",
     "baro1_std_push": "MobiFlight.WT_CJ4_BARO1_STD_PUSH",
@@ -94,6 +122,10 @@ simevents = {
     "baro3_dec": "MobiFlight.WT_CJ4_BARO3_DEC",
 }
 simvars = {}
+
+
+# MIDI CC and NOTE handlers used on this aircraft
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 def ap_hdg_incdec(m):
@@ -174,11 +206,6 @@ def ap_flc_incdec(m):
     )
 
 
-# FIXME: doc variables reference
-# source: mobiflight events for this aircraft here: https://github.com/MobiFlight/MobiFlight-WASM-Module/blob/main/src/Sources/Code/events.txt#L4641
-# official docs about the Working title Cj4 here: https://www.workingtitle.aero/packages/cj4/guides/simvars
-
-
 def ap_toggle(m):
     """Toggle autopilot"""
 
@@ -245,26 +272,30 @@ def lights_displays_incdec(m):
         )
 
 
-# FIXME: doc me
 def ap_lnav_toggle(m):
-    # WT_CJ4_AP_NAV_PRESSED
+    """Toggle LNAV mode"""
+
     if m.on:
         simc.send_event(simevents["ap_lnav_toggle"])
 
 
 def ap_vnav_toggle(m):
-    # WT_CJ4_AP_VNAV_PRESSED
+    """Toggle VNAV mode"""
+
     if m.on:
         simc.send_event(simevents["ap_vnav_toggle"])
 
 
 def ap_appr_toggle(m):
-    # WT_CJ4_AP_APPR_PRESSED
+    """Toggle APPROACH mode"""
+
     if m.on:
         simc.send_event(simevents["ap_appr_toggle"])
 
 
 def baro1_std_push(m):
+    """Barometer 1 push (set to STD)"""
+
     if m.on:
         simc.send_event(simevents["baro1_std_push"])
 
@@ -275,8 +306,8 @@ def baro2_std_push(m):
 
 
 def baro1_incdec(m):
+    """Barometer 1 knob (+/-)"""
 
-    # FIXME: doc me
     arturia.send_evt_on_encoder_rotation(
         m.value,
         mode=KNOB_MODE,
@@ -286,8 +317,8 @@ def baro1_incdec(m):
 
 
 def baro2_incdec(m):
+    """Barometer 2 knob (+/-)"""
 
-    # FIXME: doc me
     arturia.send_evt_on_encoder_rotation(
         m.value,
         mode=KNOB_MODE,
@@ -297,8 +328,8 @@ def baro2_incdec(m):
 
 
 def baro3_incdec(m):
+    """Barometer 3 knob (+/-)"""
 
-    # FIXME: doc me
     arturia.send_evt_on_encoder_rotation(
         m.value,
         mode=KNOB_MODE,
@@ -312,7 +343,8 @@ def on_autopilot_change(v) -> None:
     print("HOLA")
 
 
-# FIXME: doc me
+# Proceed to start up the engines
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 setup(
     simconnect_backend=simc.SIMCONNECT_BACKEND_MOBIFLIGHT,
     midi_input_port=MIDI_PORT_IN,
