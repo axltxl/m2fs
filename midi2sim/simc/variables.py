@@ -130,6 +130,9 @@ def set_variable(name: str, value: any) -> None:
     else:
         v = __get_aq().find(name)
     if v is not None:
+        # Apparently, MobiFlight-SimConnect only likes strings
+        if get_backend() == SIMCONNECT_BACKEND_MOBIFLIGHT:
+            value = str(value)
         v.set(value)
     else:
         # NOTE: Unfortunately, not all SimVars are supported out of the box

@@ -69,18 +69,35 @@ def get_encoder_rotation(value: int, *, mode=ENC_MODE_REL_1):
     return 0
 
 
-# FIXME: doc me
+def __send_evt(e):
+    if isinstance(e, tuple):
+        simc_send_evt(*e)
+    else:
+        simc_send_evt(e)
+
+
 def send_evt_on_encoder_rotation(cc_value, *, evt_cw, evt_ccw, mode):
+    """
+    Send event based on encoder rotation
+
+    On relative modes, this function will detect whether your Arturia
+    MIDI controller is doing a clockwise or a counter-clockwise rotation.
+    In each case, it'll send a SimEvent of your choice.
+    """
+
     er = get_encoder_rotation(cc_value, mode=mode)
     if er > 0:
-        simc_send_evt(evt_cw)
+        __send_evt(evt_cw)
     elif er < 0:
-        simc_send_evt(evt_ccw)
+        __send_evt(evt_ccw)
 
 
-# FIXME: doc me
 def send_evt_on_note_toggle(note, *, evt_on, evt_off):
+    """
+    Send event based on whether a note has been set on or off
+    """
+
     if note.on:
-        simc_send_evt(evt_on)
+        __send_evt(evt_on)
     else:
-        simc_send_evt(evt_off)
+        __send_evt(evt_off)

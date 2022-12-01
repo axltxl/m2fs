@@ -23,6 +23,7 @@ from .midi import (
     list_ports as midi_list_ports,
     cleanup as midi_cleanup,
     message_pump as midi_message_pump,
+    bootstrap as midi_bootstrap,
 )
 
 log = Logger(prefix=">> ")
@@ -54,7 +55,7 @@ def __parse_args(argv: list[str]) -> dict:
     """{pkg_name}
 
     Usage:
-        {pkg_name} --config <config_file> [--simconnect-backend <simconnect_backend>]
+        {pkg_name} --config <config_file>
         {pkg_name} midi [(list)]
         {pkg_name} sim var get <variable> [--simconnect-backend <simconnect_backend>]
 
@@ -118,12 +119,7 @@ def main(argv: list[str]) -> int:
         # If no command is provided, it's gonna
         # do its thing and run the event loop
         else:
-            event_loop(
-                config_file=options["--config"],
-                simconnect_backend=__get_simconnect_backend_id(
-                    options["--simconnect-backend"]
-                ),
-            )
+            event_loop(config_file=options["--config"])
             return 0
 
     except DocoptExit:
@@ -204,7 +200,8 @@ def __load_mod_from_file(config_file: str):
     return module
 
 
-def event_loop(*, config_file: str, simconnect_backend: int) -> None:
+# def event_loop(*, config_file: str, simconnect_backend: int) -> None:
+def event_loop(*, config_file: str) -> None:
     """
     Main event loop
 
@@ -213,18 +210,11 @@ def event_loop(*, config_file: str, simconnect_backend: int) -> None:
     with them
     """
 
-    # Proceed to connect to simulator
-    simc_connect(backend=simconnect_backend)
-
-    # Start polling for simc changes ... (does not block)
-    simc_poll_start()
-
-    # Start processing MIDI messages already
     try:
+        midi_bootstrap()  # Start the MIDI engine
         config = __load_mod_from_file(config_file)  # Get config as a module
-        midi_message_pump(
-            setup_func=config.on_init
-        )  # Start rolling those MIDI messages
+        simc_poll_start()  # Start polling for simc changes ... (does not block)
+        midi_message_pump()  # Start rolling those MIDI messages
     except ImportError:
         log.error(f"Couldn't load configuration file: {config_file}")
         raise

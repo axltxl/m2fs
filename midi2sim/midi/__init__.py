@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .midi import message_pump, cleanup
+from .midi import message_pump, cleanup, bootstrap
 
 from .port import (
     list_ports,
@@ -9,6 +9,8 @@ from .port import (
     send_note_message,
     send_cc_message,
 )
+
+from .message import TYPE_CC, TYPE_PITCHWHEEL, TYPE_NOTE
 
 from .cc import (
     ControlChangeMessage,

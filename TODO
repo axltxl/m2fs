@@ -1,4 +1,3 @@
-* midi2sim.config_reload()
 * Implement --log-level (-vvvvv)
 * Implement: distutils distribution (setup.py)
 * py2exe
