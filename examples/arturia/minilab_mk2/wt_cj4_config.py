@@ -6,6 +6,7 @@ midi2sim configuration file
 MIDI controller:    Arturia MiniLab mkII
 Aircraft:           Working Title Cessna Citation CJ4
 SimConnect backend: MobiFlight-SimConnect
+Preset file for MIDI controller: midi2sim.minilabmk2
 """
 
 from midi2sim import midi, simc

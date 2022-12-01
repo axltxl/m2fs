@@ -13,21 +13,7 @@
             "justMyCode": true,
             "args": [
                 "-c",
-                "${workspaceFolder}/examples/arturia/minilab_mk2.py",
-                "--simconnect-backend",
-                "${input:SimConnectBackend}"
-            ]
-        },
-        {
-            "name": "debug (alt)",
-            "type": "python",
-            "request": "launch",
-            "module": "midi2sim",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "-c",
-                "${workspaceFolder}/examples/arturia/minilab_mk2.py"
+                "${workspaceFolder}/examples/arturia/minilab_mk2/wt_cj4_config.py"
             ]
         },
         {
