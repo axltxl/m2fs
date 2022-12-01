@@ -121,7 +121,7 @@ simevents = {
     "baro3_inc": "MobiFlight.WT_CJ4_BARO3_INC",
     "baro3_dec": "MobiFlight.WT_CJ4_BARO3_DEC",
 }
-simvars = {}
+simvars = {"ap_master": "(A:AUTOPILOT MASTER,Bool)"}
 
 
 # MIDI CC and NOTE handlers used on this aircraft
@@ -338,7 +338,7 @@ def baro3_incdec(m):
     )
 
 
-def on_autopilot_change(v) -> None:
+def on_ap_master_change(v):
     # FIXME: doc me
     print("HOLA")
 
@@ -347,6 +347,7 @@ def on_autopilot_change(v) -> None:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 setup(
     simconnect_backend=simc.SIMCONNECT_BACKEND_MOBIFLIGHT,
+    simconnect_var_subs=[(simvars["ap_master"], on_ap_master_change)],
     midi_input_port=MIDI_PORT_IN,
     midi_cc_handlers=[
         # AP Panel handlers

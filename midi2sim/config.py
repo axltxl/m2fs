@@ -9,7 +9,10 @@ from .midi import (
     subscribe_to_pitchwheel as midi_subscribe_to_pitchwheel,
     connect_input_port as midi_connect_input_port,
 )
-from .simc import connect as simc_connect
+from .simc import (
+    connect as simc_connect,
+    subscribe_to_simvar as simc_subscribe_to_simvar,
+)
 from .simc import SIMCONNECT_BACKEND_DEFAULT
 
 
@@ -25,13 +28,20 @@ def ___batch_assign_note_handlers(h_map: list[tuple[int, callable]]):
         midi_subscribe_to_note(note=note, handler=handler)
 
 
+def ___batch_subscribe_to_simvars(h_map: list[tuple[str, callable]]):
+    for handle_pair in h_map:
+        simvar, handler = handle_pair
+        simc_subscribe_to_simvar(simvar, handler=handler)
+
+
 def setup(
     *,
     simconnect_backend: int = SIMCONNECT_BACKEND_DEFAULT,
+    simconnect_var_subs: list[tuple[str, callable]] = None,
     midi_input_port: str,
     midi_cc_handlers: list[tuple[int, callable]] = None,
     midi_note_handlers: list[tuple[int, callable]] = None,
-    pitchwheel_handler: callable = None,
+    midi_pitchwheel_handler: callable = None,
 ):
     """
     Set-up entrypoint (mainly thought for configuration files)
@@ -44,6 +54,7 @@ def setup(
     * MIDI CC handlers (if specified)
     * MIDI note handlers (if specifiec)
     * MIDI pitchwheel handler (if specified)
+    * SimVar change handler subscription (if specified)
     """
 
     # Connect the MIDI input port
@@ -63,5 +74,9 @@ def setup(
         ___batch_assign_note_handlers(midi_note_handlers)
 
     # Pitchwheel handler
-    if pitchwheel_handler is not None:
-        midi_subscribe_to_pitchwheel(handler=pitchwheel_handler)
+    if midi_pitchwheel_handler is not None:
+        midi_subscribe_to_pitchwheel(handler=midi_pitchwheel_handler)
+
+    # SimVar subscriptions
+    if simconnect_var_subs is not None:
+        ___batch_subscribe_to_simvars(simconnect_var_subs)
