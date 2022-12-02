@@ -3,12 +3,13 @@
 import sys
 import os
 import traceback
+import threading
 
 import mido
 
 from .log import log
 from .port import cleanup as port_cleanup
-from .port import get_input_port
+from .port import get_all_input_ports
 from .message import BaseMessage
 from .message import TYPE_CC, TYPE_NOTE, TYPE_PITCHWHEEL
 from .cc import (
@@ -116,15 +117,42 @@ def cleanup() -> None:
     port_cleanup()
 
 
-# def message_pump(*, setup_func: callable) -> None:
-def message_pump() -> None:
-    """Main MIDI event message pump"""
-
-    # Open the port for input and output and process messages
-    # with mido.open_input(__in_port_name) as in_port:
-    in_port = get_input_port()
+# FIXME
+def __in_port_message_pump(in_port: mido.ports.BaseInput):
     if in_port is not None and not in_port.closed:
         for msg in in_port:
             __handle_msg(msg)
     else:
         raise MIDIException("No input port connected")
+
+
+# FIXME
+__in_port_msg_pump_threads = []
+__message_pump_quit = False
+
+# def message_pump(*, setup_func: callable) -> None:
+def message_pump_start() -> None:
+    """Main MIDI event message pump"""
+
+    # FIXME
+    global __in_port_msg_pump_threads, __message_pump_quit
+    # Open the port for input and output and process messages
+    # with mido.open_input(__in_port_name) as in_port:
+    # in_port = get_input_port()
+    # if in_port is not None and not in_port.closed:
+    #     for msg in in_port:
+    #         __handle_msg(msg)
+    # else:
+    #     raise MIDIException("No input port connected")
+    for port in get_all_input_ports():
+        # log.debug(f"{in_port.name}: starting message pump")
+        # __start_in_port_msg_pump_thread(port)
+        # msg_pump_thread = threading.thread(target=__in_port_message_pump, args=(port,))
+        # msg_pump_thread.start()
+        # __in_port_msg_pump_threads[port.name] = msg_pump_thread
+        pass
+
+
+# FIXME
+def message_pump_stop() -> None:
+    pass

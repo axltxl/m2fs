@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from .midi import message_pump, cleanup, bootstrap
+from .midi import message_pump_start, message_pump_stop, cleanup, bootstrap
 
 from .port import (
-    list_ports,
+    list_available_ports,
     connect_input_port,
-    get_input_port_name,
     send_note_message,
     send_cc_message,
 )

@@ -15,9 +15,12 @@ from midi2sim import setup
 
 # MIDI device for this configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-MIDI_PORT_IN = "Arturia MiniLab mkII 0"
+# FIXME
+# MIDI_PORTS_IN = ["Arturia MiniLab mkII 0", "LPX MIDI 0"]
+MIDI_PORTS_IN = ["LPX MIDI 1"]
+# MIDI_PORTS_IN = ["Arturia MiniLab mkII 0"]
 
-# Some basics for making life easier
+# Some basics  for making life easier
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Knobs section
@@ -349,7 +352,7 @@ def on_ap_master_change(v):
 setup(
     simconnect_backend=simc.SIMCONNECT_BACKEND_MOBIFLIGHT,
     simconnect_var_subs=[(simvars["ap_master"], on_ap_master_change)],
-    midi_input_port=MIDI_PORT_IN,
+    midi_input_ports=MIDI_PORTS_IN,
     midi_cc_handlers=[
         # AP Panel handlers
         # ----------------------

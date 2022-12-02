@@ -38,7 +38,7 @@ def setup(
     *,
     simconnect_backend: int = SIMCONNECT_BACKEND_DEFAULT,
     simconnect_var_subs: list[tuple[str, callable]] = None,
-    midi_input_port: str,
+    midi_input_ports: list[str],
     midi_cc_handlers: list[tuple[int, callable]] = None,
     midi_note_handlers: list[tuple[int, callable]] = None,
     midi_pitchwheel_handler: callable = None,
@@ -57,13 +57,15 @@ def setup(
     * SimVar change handler subscription (if specified)
     """
 
-    # Connect the MIDI input port
-    midi_connect_input_port(name=midi_input_port)
-
     # Connect to the flight simulator
     simc_connect(backend=simconnect_backend)
 
     # MIDI
+    # ~~~~~~~~~~~~~~
+
+    # Connect the MIDI input ports
+    for ip in midi_input_ports:
+        midi_connect_input_port(name=ip)
 
     # CC handlers
     if midi_cc_handlers is not None:
