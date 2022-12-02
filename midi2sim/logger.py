@@ -5,8 +5,8 @@ LOG_LVL_DEBUG = 0
 LOG_LVL_INFO = 1
 LOG_LVL_WARN = 2
 LOG_LVL_FATAL = 3
-# LOG_LVL = LOG_LVL_VERBOSE  # FIXME: hardcoded (for now)
-LOG_LVL = LOG_LVL_DEBUG  # FIXME: hardcoded (for now)
+
+__log_level = LOG_LVL_INFO
 
 LEVEL_STR = {
     LOG_LVL_VERBOSE: "VERBOSE",
@@ -17,33 +17,13 @@ LEVEL_STR = {
 }
 
 
-class Logger:
-    """Logger class utility"""
-
-    def __init__(self, *, prefix):
-        self.__prefix = prefix
-
-    def __fmt_msg(self, msg):
-        return f"{self.__prefix} {msg}"
-
-    def verbose(self, msg):
-        log.verbose(self.__fmt_msg(msg))
-
-    def debug(self, msg):
-        log.debug(self.__fmt_msg(msg))
-
-    def info(self, msg):
-        log.info(self.__fmt_msg(msg))
-
-    def warn(self, msg):
-        log.warn(self.__fmt_msg(msg))
-
-    def error(self, msg):
-        log.error(self.__fmt_msg(msg))
+def set_log_level(lvl: int) -> None:
+    global __log_level
+    __log_level = lvl
 
 
 def log(level: int, msg: str) -> None:
-    if level >= LOG_LVL:
+    if level >= __log_level:
         print(f"[{LEVEL_STR[level]}] - {msg}")
 
 
@@ -90,3 +70,6 @@ class Logger:
 
     def error(self, msg):
         error(self.__fmt_msg(msg))
+
+    def set_level(lvl: int):
+        set_log_level(lvl)

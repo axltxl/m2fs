@@ -10,6 +10,14 @@ import time
 from docopt import docopt, DocoptExit
 
 from .logger import Logger
+from .logger import (
+    LOG_LVL_VERBOSE,
+    LOG_LVL_DEBUG,
+    LOG_LVL_INFO,
+    LOG_LVL_WARN,
+    LOG_LVL_FATAL,
+)
+from .logger import set_log_level as log_set_log_level
 from .simc import (
     SIMCONNECT_BACKEND_DEFAULT,
     SIMCONNECT_BACKEND_MOBIFLIGHT,
@@ -35,6 +43,7 @@ PKG_NAME = "midi2sim"
 CLI_DEFAULT_CONFIG_DIR = os.path.join(os.path.expanduser("~"), PKG_NAME)
 CLI_DEFAULT_CONFIG_FILE = os.path.join(CLI_DEFAULT_CONFIG_DIR, "config.py")
 CLI_DEFAULT_SIMCONNECT_BACKEND = SIMCONNECT_BACKEND_DEFAULT_NAME
+CLI_DEFAULT_LOG_LEVEL = "info"
 
 
 def __handle_signal(signum, frame):
@@ -65,15 +74,16 @@ def __parse_args(argv: list[str]) -> dict:
     """{pkg_name}
 
     Usage:
-        {pkg_name} [--config FILE]
-        {pkg_name} midi [(list)]
-        {pkg_name} sim var get <variable> [--simconnect-backend BACKEND]
+        {pkg_name} [--config=FILE --log-level=LVL]
+        {pkg_name} midi [(list) --log-level=LVL]
+        {pkg_name} sim var get <variable> [--simconnect-backend=BACKEND --log-level=LVL]
 
     Options:
         -h --help                          Show this screen.
         --version                          Show version.
         -c, --config FILE                  Configuration file location [default: {default_config_file}]
         -s, --simconnect-backend BACKEND   SimConnect client backend [default: {default_smc_backend}]
+        -l, --log-level LVL                Log level [default: {default_log_level}]
     """
 
     # __doc__ needs to be formatted first
@@ -81,6 +91,7 @@ def __parse_args(argv: list[str]) -> dict:
         pkg_name=PKG_NAME,
         default_config_file=CLI_DEFAULT_CONFIG_FILE,
         default_smc_backend=CLI_DEFAULT_SIMCONNECT_BACKEND,
+        default_log_level=CLI_DEFAULT_LOG_LEVEL,
     )
 
     return docopt(
@@ -99,6 +110,22 @@ def __get_simconnect_backend_id(backend: str) -> int:
     return SIMCONNECT_BACKEND_DEFAULT
 
 
+def __get_log_level(l: str) -> int:
+    allowed_levels = {
+        "verbose": LOG_LVL_VERBOSE,
+        "debug": LOG_LVL_DEBUG,
+        "info": LOG_LVL_INFO,
+        "warning": LOG_LVL_WARN,
+        "error": LOG_LVL_FATAL,
+    }
+    try:
+        return allowed_levels[l]
+    except KeyError:
+        raise Exception(
+            f"{l}: Incorrent log level. Valid levels are: verbose, debug, info, warning, error"
+        )
+
+
 def main(argv: list[str]) -> int:
     """Main entrypoint"""
 
@@ -112,6 +139,8 @@ def main(argv: list[str]) -> int:
 
         # Get command from command line
         # (already parsed to options)
+        log_level = __get_log_level(options["--log-level"])
+        log_set_log_level(log_level)
 
         # MIDI options
         if options["midi"]:
