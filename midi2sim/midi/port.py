@@ -6,7 +6,7 @@ from .log import log
 from .exceptions import MIDIException
 
 
-__in_port = None
+__in_ports = {}
 __out_ports = {}
 
 
@@ -14,6 +14,10 @@ def send_note_message(*, dest_port, note, channel=0, on=True, velocity=64, time=
     """Send note message to an output MIDI port"""
 
     note_press = "note_on" if on else "note_off"
+
+    if dest_port not in __out_ports:
+        connect_output_port(name=dest_port)
+
     get_output_port(name=dest_port).send(
         mido.Message(
             note_press, channel=channel, note=note, velocity=velocity, time=time
@@ -27,6 +31,9 @@ def send_note_message(*, dest_port, note, channel=0, on=True, velocity=64, time=
 def send_cc_message(*, dest_port, value, channel=0):
     """Send CC message to an output MIDI port"""
 
+    if dest_port not in __out_ports:
+        connect_output_port(name=dest_port)
+
     get_output_port(name=dest_port).send(
         mido.Message("control_change", channel=channel, value=value)
     )
@@ -35,43 +42,45 @@ def send_cc_message(*, dest_port, value, channel=0):
     )
 
 
-def list_ports() -> dict:
-    """List all physical MIDI ports (devices)"""
+def list_available_ports() -> dict:
+    """List all available MIDI ports"""
 
     return {
         "input": mido.get_input_names(),
         "output": mido.get_output_names(),
-        "io": mido.get_ioport_names(),
     }
 
 
 def connect_input_port(*, name) -> None:
     """Connect and/or setup MIDI input port"""
 
-    global __in_port
+    global __in_ports
 
-    __in_port = mido.open_input(name)
-    log.info(f"input port connected: {__in_port.name}")
+    if not name in __in_ports:
+        inp = mido.open_input(name)
+        if inp is None:
+            raise MIDIException(f"{name}: invalid MIDI input port")
+        __in_ports[name] = inp
+        log.info(f"input port connected: {name}")
 
 
-def get_input_port() -> (mido.ports.BaseInput | None):
+def get_input_port(*, name) -> (mido.ports.BaseInput | None):
     """Get currently connected input port"""
 
-    return __in_port
+    try:
+        return __in_ports[name]
+    except KeyError:
+        return None
 
 
-def get_input_port_name() -> str:
-    """Get currently connected MIDI input port name"""
+def get_all_input_ports() -> list[mido.ports.BaseInput]:
+    """Get all currently connected input ports"""
 
-    global __in_port
-
-    if __in_port is not None:
-        return __in_port.name
-    return "NO_MIDI_IN_CONNECTED"
+    return [v for _, v in __in_ports.items()]
 
 
-def get_output_port(*, name) -> mido.ports.BaseOutput:
-    """Get MIDI output port by name"""
+def connect_output_port(*, name) -> None:
+    """Connect an output port"""
 
     global __out_ports
 
@@ -84,18 +93,27 @@ def get_output_port(*, name) -> mido.ports.BaseOutput:
         out.reset()
         __out_ports[name] = out
 
-    return __out_ports[name]
+
+def get_output_port(*, name) -> (mido.ports.BaseOutput | None):
+    """Get MIDI output port by name"""
+
+    try:
+        return __out_ports[name]
+    except KeyError:
+        return None
 
 
 def cleanup() -> None:
     """Close all MIDI ports and do housekeeping"""
 
     # Close currently opened MIDI input port
-    __close_port(__in_port)
+    for name, port in __in_ports.items():
+        log.info(f"closing input port: {name}")
+        __close_port(port)
 
     # Close all opened MIDI output ports
     for name, port in __out_ports.items():
-        log.info("closing port: {name}")
+        log.info(f"closing output port: {name}")
         __close_port(port)
 
 

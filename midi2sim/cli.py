@@ -4,6 +4,8 @@ import os
 import sys
 import traceback
 import importlib.util
+import signal
+import time
 
 from docopt import docopt, DocoptExit
 
@@ -20,9 +22,9 @@ from .simc import (
     poll_stop as simc_poll_stop,
 )
 from .midi import (
-    list_ports as midi_list_ports,
+    list_available_ports as midi_list_available_ports,
     cleanup as midi_cleanup,
-    message_pump as midi_message_pump,
+    message_pump_start as midi_message_pump_start,
     bootstrap as midi_bootstrap,
 )
 
@@ -33,6 +35,14 @@ PKG_NAME = "midi2sim"
 CLI_DEFAULT_CONFIG_DIR = os.path.join(os.path.expanduser("~"), PKG_NAME)
 CLI_DEFAULT_CONFIG_FILE = os.path.join(CLI_DEFAULT_CONFIG_DIR, "config.py")
 CLI_DEFAULT_SIMCONNECT_BACKEND = SIMCONNECT_BACKEND_DEFAULT_NAME
+
+
+def __handle_signal(signum, frame):
+    """
+    UNIX signal handler
+    """
+    # Raise a SystemExit exception
+    sys.exit(1)
 
 
 def __handle_except(e):
@@ -55,23 +65,26 @@ def __parse_args(argv: list[str]) -> dict:
     """{pkg_name}
 
     Usage:
-        {pkg_name} --config <config_file>
+        {pkg_name} [--config FILE]
         {pkg_name} midi [(list)]
-        {pkg_name} sim var get <variable> [--simconnect-backend <simconnect_backend>]
+        {pkg_name} sim var get <variable> [--simconnect-backend BACKEND]
 
     Options:
-        -h --help                         Show this screen.
-        --version                         Show version.
-        --config -c FILE                  Configuration file location (default: {default_config_file})
-        --simconnect-backend -s BACKEND   SimConnect client backend (default: {default_smc_backend})
+        -h --help                          Show this screen.
+        --version                          Show version.
+        -c, --config FILE                  Configuration file location [default: {default_config_file}]
+        -s, --simconnect-backend BACKEND   SimConnect client backend [default: {default_smc_backend}]
     """
 
+    # __doc__ needs to be formatted first
+    __parse_args.__doc__ = __parse_args.__doc__.format(
+        pkg_name=PKG_NAME,
+        default_config_file=CLI_DEFAULT_CONFIG_FILE,
+        default_smc_backend=CLI_DEFAULT_SIMCONNECT_BACKEND,
+    )
+
     return docopt(
-        __parse_args.__doc__.format(
-            pkg_name=PKG_NAME,
-            default_config_file=CLI_DEFAULT_CONFIG_FILE,
-            default_smc_backend=CLI_DEFAULT_SIMCONNECT_BACKEND,
-        ),
+        __parse_args.__doc__,
         argv=argv,
         version=PKG_VERSION,
     )
@@ -92,6 +105,10 @@ def main(argv: list[str]) -> int:
     try:
         # Parse arguments
         options = __parse_args(argv)
+
+        # This baby will handle UNIX signals
+        signal.signal(signal.SIGINT, __handle_signal)
+        signal.signal(signal.SIGTERM, __handle_signal)
 
         # Get command from command line
         # (already parsed to options)
@@ -124,6 +141,8 @@ def main(argv: list[str]) -> int:
 
     except DocoptExit:
         print(__parse_args.__doc__)
+    except SystemExit:
+        log.warn("Exiting ...")
     except Exception as e:
         return __handle_except(e)
     finally:
@@ -167,7 +186,7 @@ def __cmd_ls() -> None:
     """Process command argument"""
 
     log.info("Listing MIDI port(s) ...")
-    ports = midi_list_ports()
+    ports = midi_list_available_ports()
     log.info("List of MIDI input port(s) found:")
     __log_ports(ports["input"])
     log.info("List of MIDI output port(s) found:")
@@ -185,9 +204,7 @@ def __load_mod_from_file(config_file: str):
     config_file_abs_path = os.path.expanduser(os.path.realpath(config_file))
     module_name = "config"
 
-    log.debug(
-        f"Attempting to load config module at: {config_file_abs_path} (module_name={module_name}"
-    )
+    log.debug(f"Attempting to load config module at: {config_file_abs_path}")
 
     spec = importlib.util.spec_from_file_location(module_name, config_file_abs_path)
     module = importlib.util.module_from_spec(spec)
@@ -200,7 +217,6 @@ def __load_mod_from_file(config_file: str):
     return module
 
 
-# def event_loop(*, config_file: str, simconnect_backend: int) -> None:
 def event_loop(*, config_file: str) -> None:
     """
     Main event loop
@@ -214,7 +230,11 @@ def event_loop(*, config_file: str) -> None:
         midi_bootstrap()  # Start the MIDI engine
         config = __load_mod_from_file(config_file)  # Get config as a module
         simc_poll_start()  # Start polling for simc changes ... (does not block)
-        midi_message_pump()  # Start rolling those MIDI messages
+        midi_message_pump_start()  # Start rolling those MIDI messages
+
+        # block until exception
+        while True:
+            time.sleep(1)
     except ImportError:
         log.error(f"Couldn't load configuration file: {config_file}")
         raise
