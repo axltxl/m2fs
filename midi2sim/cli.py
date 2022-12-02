@@ -40,6 +40,8 @@ log = Logger(prefix=">> ")
 
 PKG_VERSION = "0.1.0"
 PKG_NAME = "midi2sim"
+PKG_AUTHOR = "Alejandro Ricoveri"
+PKG_URL = f"github.com/axltxl/{PKG_NAME}"
 CLI_DEFAULT_CONFIG_DIR = os.path.join(os.path.expanduser("~"), PKG_NAME)
 CLI_DEFAULT_CONFIG_FILE = os.path.join(CLI_DEFAULT_CONFIG_DIR, "config.py")
 CLI_DEFAULT_SIMCONNECT_BACKEND = SIMCONNECT_BACKEND_DEFAULT_NAME
