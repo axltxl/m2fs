@@ -32,6 +32,9 @@ from .pitchwheel import (
 from .exceptions import MIDIException
 
 
+__in_port_msg_pump_threads = []
+
+
 def bootstrap():
     """Initialize MIDI backend (mido)"""
 
@@ -117,42 +120,29 @@ def cleanup() -> None:
     port_cleanup()
 
 
-# FIXME
 def __in_port_message_pump(in_port: mido.ports.BaseInput):
-    if in_port is not None and not in_port.closed:
-        for msg in in_port:
-            __handle_msg(msg)
-    else:
-        raise MIDIException("No input port connected")
+    """Input port message pump"""
+
+    for msg in in_port:
+        __handle_msg(msg)
 
 
-# FIXME
-__in_port_msg_pump_threads = []
-__message_pump_quit = False
-
-# def message_pump(*, setup_func: callable) -> None:
 def message_pump_start() -> None:
     """Main MIDI event message pump"""
 
-    # FIXME
     global __in_port_msg_pump_threads, __message_pump_quit
-    # Open the port for input and output and process messages
-    # with mido.open_input(__in_port_name) as in_port:
-    # in_port = get_input_port()
-    # if in_port is not None and not in_port.closed:
-    #     for msg in in_port:
-    #         __handle_msg(msg)
-    # else:
-    #     raise MIDIException("No input port connected")
+
     for port in get_all_input_ports():
-        # log.debug(f"{in_port.name}: starting message pump")
-        # __start_in_port_msg_pump_thread(port)
-        # msg_pump_thread = threading.thread(target=__in_port_message_pump, args=(port,))
-        # msg_pump_thread.start()
-        # __in_port_msg_pump_threads[port.name] = msg_pump_thread
-        pass
 
+        log.debug(f"{port.name}: starting message pump thread")
 
-# FIXME
-def message_pump_stop() -> None:
-    pass
+        # Start a separate thread per input port
+        # (set to daemon, so it doesn't need to be explicitely dealt with
+        # when exiting)
+        # NOTE: consider a ThreadPoolExecutor in the future
+        msg_pump_thread = threading.Thread(
+            target=__in_port_message_pump, args=(port,), daemon=True
+        )
+        msg_pump_thread.start()
+
+        __in_port_msg_pump_threads.append(msg_pump_thread)

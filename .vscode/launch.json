@@ -17,6 +17,14 @@
             ]
         },
         {
+            "name": "debug (no args provided)",
+            "type": "python",
+            "request": "launch",
+            "module": "midi2sim",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+        },
+        {
             "name": "debug (help)",
             "type": "python",
             "request": "launch",

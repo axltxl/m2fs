@@ -9,16 +9,15 @@ SimConnect backend: MobiFlight-SimConnect
 Preset file for MIDI controller: midi2sim.minilabmk2
 """
 
+import math
+
 from midi2sim import midi, simc
 from midi2sim.utils import arturia
 from midi2sim import setup
 
 # MIDI device for this configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# FIXME
-# MIDI_PORTS_IN = ["Arturia MiniLab mkII 0", "LPX MIDI 0"]
-MIDI_PORTS_IN = ["LPX MIDI 1"]
-# MIDI_PORTS_IN = ["Arturia MiniLab mkII 0"]
+MIDI_PORTS_IN = ["Arturia MiniLab mkII 0", "MIDIIN2 (LPX MIDI) 2"]
 
 # Some basics  for making life easier
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,55 +27,55 @@ MIDI_PORTS_IN = ["LPX MIDI 1"]
 
 # Main encoder mode to use for this configuration
 # (Relative 1)
-KNOB_MODE = arturia.ENC_MODE_REL_1
+AMK2_KNOB_MODE = arturia.ENC_MODE_REL_1
 
 # Knobs 1 and 9 are special, not only can they turn,
 # they also can be pushed and can be configured to send
 # different MIDI signals with the SHIFT key pressed and held
 
 # CCs sent by knobs 1 and 9 (shift)
-KNOB_01_SHIFT = midi.CC_041
-KNOB_09_SHIFT = midi.CC_042
+AMK2_KNOB_01_SHIFT = midi.CC_041
+AMK2_KNOB_09_SHIFT = midi.CC_042
 
 # Notes assigned to knobs 1 and 9 when pressed
-KNOB_01_SWITCH = midi.NOTE_113
-KNOB_09_SWITCH = midi.NOTE_115
+AMK2_KNOB_01_SWITCH = midi.NOTE_113
+AMK2_KNOB_09_SWITCH = midi.NOTE_115
 
 # CCs for all other knobs
-KNOB_01 = midi.CC_021
-KNOB_02 = midi.CC_022
-KNOB_03 = midi.CC_023
-KNOB_04 = midi.CC_024
-KNOB_05 = midi.CC_025
-KNOB_06 = midi.CC_026
-KNOB_07 = midi.CC_027
-KNOB_08 = midi.CC_028
-KNOB_09 = midi.CC_029
-KNOB_10 = midi.CC_030
-KNOB_11 = midi.CC_031
-KNOB_12 = midi.CC_032
-KNOB_13 = midi.CC_033
-KNOB_14 = midi.CC_034
-KNOB_15 = midi.CC_035
-KNOB_16 = midi.CC_036
+AMK2_KNOB_01 = midi.CC_021
+AMK2_KNOB_02 = midi.CC_022
+AMK2_KNOB_03 = midi.CC_023
+AMK2_KNOB_04 = midi.CC_024
+AMK2_KNOB_05 = midi.CC_025
+AMK2_KNOB_06 = midi.CC_026
+AMK2_KNOB_07 = midi.CC_027
+AMK2_KNOB_08 = midi.CC_028
+AMK2_KNOB_09 = midi.CC_029
+AMK2_KNOB_10 = midi.CC_030
+AMK2_KNOB_11 = midi.CC_031
+AMK2_KNOB_12 = midi.CC_032
+AMK2_KNOB_13 = midi.CC_033
+AMK2_KNOB_14 = midi.CC_034
+AMK2_KNOB_15 = midi.CC_035
+AMK2_KNOB_16 = midi.CC_036
 
 # MIDI notes for all drum pads
-PAD_01 = midi.NOTE_036
-PAD_02 = midi.NOTE_037
-PAD_03 = midi.NOTE_038
-PAD_04 = midi.NOTE_039
-PAD_05 = midi.NOTE_040
-PAD_06 = midi.NOTE_041
-PAD_07 = midi.NOTE_042
-PAD_08 = midi.NOTE_043
-PAD_09 = midi.NOTE_044
-PAD_10 = midi.NOTE_045
-PAD_11 = midi.NOTE_046
-PAD_12 = midi.NOTE_047
-PAD_13 = midi.NOTE_048
-PAD_14 = midi.NOTE_049
-PAD_15 = midi.NOTE_050
-PAD_16 = midi.NOTE_051
+AMK2_PAD_01 = midi.NOTE_036
+AMK2_PAD_02 = midi.NOTE_037
+AMK2_PAD_03 = midi.NOTE_038
+AMK2_PAD_04 = midi.NOTE_039
+AMK2_PAD_05 = midi.NOTE_040
+AMK2_PAD_06 = midi.NOTE_041
+AMK2_PAD_07 = midi.NOTE_042
+AMK2_PAD_08 = midi.NOTE_043
+AMK2_PAD_09 = midi.NOTE_044
+AMK2_PAD_10 = midi.NOTE_045
+AMK2_PAD_11 = midi.NOTE_046
+AMK2_PAD_12 = midi.NOTE_047
+AMK2_PAD_13 = midi.NOTE_048
+AMK2_PAD_14 = midi.NOTE_049
+AMK2_PAD_15 = midi.NOTE_050
+AMK2_PAD_16 = midi.NOTE_051
 
 # SimVars and events used for this aircraft
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,7 +138,7 @@ def ap_hdg_incdec(m):
         m.value,
         evt_cw=simevents["ap_hdg_inc"],
         evt_ccw=simevents["ap_hdg_dec"],
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
     )
 
 
@@ -163,7 +162,7 @@ def ap_alt_incdec(m):
         m.value,
         evt_cw=simevents["ap_alt_inc"],
         evt_ccw=simevents["ap_alt_dec"],
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
     )
 
 
@@ -186,7 +185,7 @@ def ap_vs_incdec(m):
 
     arturia.send_evt_on_encoder_rotation(
         m.value,
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
         evt_cw=simevents["ap_vs_inc"],
         evt_ccw=simevents["ap_vs_dec"],
     )
@@ -204,7 +203,7 @@ def ap_flc_incdec(m):
 
     arturia.send_evt_on_encoder_rotation(
         m.value,
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
         evt_cw=simevents["ap_flc_inc"],
         evt_ccw=simevents["ap_flc_dec"],
     )
@@ -229,7 +228,7 @@ def lights_panel_incdec(m):
 
     arturia.send_evt_on_encoder_rotation(
         m.value,
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
         evt_cw=simevents["lights_panel_inc"],
         evt_ccw=simevents["lights_panel_dec"],
     )
@@ -240,7 +239,7 @@ def lights_cabin_incdec(m):
 
     arturia.send_evt_on_encoder_rotation(
         m.value,
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
         evt_cw=simevents["lights_cabin_inc"],
         evt_ccw=simevents["lights_cabin_dec"],
     )
@@ -251,7 +250,7 @@ def lights_flood_incdec(m):
 
     arturia.send_evt_on_encoder_rotation(
         m.value,
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
         evt_cw=simevents["lights_flood_inc"],
         evt_ccw=simevents["lights_flood_dec"],
     )
@@ -270,7 +269,7 @@ def lights_displays_incdec(m):
     for event in light_events:
         arturia.send_evt_on_encoder_rotation(
             m.value,
-            mode=KNOB_MODE,
+            mode=AMK2_KNOB_MODE,
             evt_cw=simevents[event[0]],
             evt_ccw=simevents[event[1]],
         )
@@ -314,7 +313,7 @@ def baro1_incdec(m):
 
     arturia.send_evt_on_encoder_rotation(
         m.value,
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
         evt_cw=simevents["baro1_inc"],
         evt_ccw=simevents["baro1_dec"],
     )
@@ -325,7 +324,7 @@ def baro2_incdec(m):
 
     arturia.send_evt_on_encoder_rotation(
         m.value,
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
         evt_cw=simevents["baro2_inc"],
         evt_ccw=simevents["baro2_dec"],
     )
@@ -336,15 +335,16 @@ def baro3_incdec(m):
 
     arturia.send_evt_on_encoder_rotation(
         m.value,
-        mode=KNOB_MODE,
+        mode=AMK2_KNOB_MODE,
         evt_cw=simevents["baro3_inc"],
         evt_ccw=simevents["baro3_dec"],
     )
 
 
 def on_ap_master_change(v):
-    # FIXME: doc me
-    print("HOLA")
+    """Example SimVar change handler"""
+
+    ap_on = bool(math.floor(v.value))
 
 
 # Proceed to start up the engines
@@ -357,45 +357,45 @@ setup(
         # AP Panel handlers
         # ----------------------
         # Barometers
-        (KNOB_01, baro1_incdec),  # PFD barometer
-        (KNOB_02, baro3_incdec),  # secondary barometer
+        (AMK2_KNOB_01, baro1_incdec),  # PFD barometer
+        (AMK2_KNOB_02, baro3_incdec),  # secondary barometer
         # ALT
-        (KNOB_14, ap_alt_incdec),  # AP ALT inc/dec
+        (AMK2_KNOB_14, ap_alt_incdec),  # AP ALT inc/dec
         # FLC
-        (KNOB_13, ap_flc_incdec),  #
+        (AMK2_KNOB_13, ap_flc_incdec),  #
         # VS
-        (KNOB_12, ap_vs_incdec),  # AP VS increment/decrement
+        (AMK2_KNOB_12, ap_vs_incdec),  # AP VS increment/decrement
         # HDG
-        (KNOB_09, ap_hdg_incdec),  # AP VS increment/decrement
+        (AMK2_KNOB_09, ap_hdg_incdec),  # AP VS increment/decrement
         # Lights section
         # ----------------------
         # Master lights
-        (KNOB_08, lights_panel_incdec),  # Lights (panel)
-        (KNOB_07, lights_cabin_incdec),  # Lights (cabin)
-        (KNOB_06, lights_flood_incdec),  # Lights (flood lights)
-        (KNOB_05, lights_displays_incdec),  # Lights (PFD and MFD)
+        (AMK2_KNOB_08, lights_panel_incdec),  # Lights (panel)
+        (AMK2_KNOB_07, lights_cabin_incdec),  # Lights (cabin)
+        (AMK2_KNOB_06, lights_flood_incdec),  # Lights (flood lights)
+        (AMK2_KNOB_05, lights_displays_incdec),  # Lights (PFD and MFD)
     ],
     midi_note_handlers=[
         # PFD section
         # ----------------------
         # Barometers
-        (KNOB_01_SWITCH, baro1_std_push),  # Barometer 1 STD switch
+        (AMK2_KNOB_01_SWITCH, baro1_std_push),  # Barometer 1 STD switch
         # AP Panel handlers
         # ----------------------
-        (PAD_08, ap_toggle),  # AP master switch
-        (PAD_07, yawdamper_toggle),  # Yaw damper toggle
+        (AMK2_PAD_08, ap_toggle),  # AP master switch
+        (AMK2_PAD_07, yawdamper_toggle),  # Yaw damper toggle
         # ALT
-        (PAD_06, ap_alt_toggle),  # AP ALT toggle
+        (AMK2_PAD_06, ap_alt_toggle),  # AP ALT toggle
         # FLC
-        (PAD_05, ap_flc_toggle),
+        (AMK2_PAD_05, ap_flc_toggle),
         # VS
-        (PAD_04, ap_vs_toggle),  # AP VS toggle
+        (AMK2_PAD_04, ap_vs_toggle),  # AP VS toggle
         # HDG
-        (PAD_01, ap_hdg_toggle),  # AP heading mode toggle
-        (KNOB_09_SWITCH, ap_hdg_set),  # AP heading mode toggle
+        (AMK2_PAD_01, ap_hdg_toggle),  # AP heading mode toggle
+        (AMK2_KNOB_09_SWITCH, ap_hdg_set),  # AP heading mode toggle
         # Navigation
-        (PAD_09, ap_lnav_toggle),  # LNAV
-        (PAD_10, ap_vnav_toggle),  # VNAV
-        (PAD_11, ap_appr_toggle),  # Approach mode
+        (AMK2_PAD_09, ap_lnav_toggle),  # LNAV
+        (AMK2_PAD_10, ap_vnav_toggle),  # VNAV
+        (AMK2_PAD_11, ap_appr_toggle),  # Approach mode
     ],
 )
