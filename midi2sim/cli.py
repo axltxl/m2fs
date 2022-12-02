@@ -25,7 +25,6 @@ from .midi import (
     list_available_ports as midi_list_available_ports,
     cleanup as midi_cleanup,
     message_pump_start as midi_message_pump_start,
-    message_pump_stop as midi_message_pump_stop,
     bootstrap as midi_bootstrap,
 )
 
@@ -66,23 +65,26 @@ def __parse_args(argv: list[str]) -> dict:
     """{pkg_name}
 
     Usage:
-        {pkg_name} --config <config_file>
+        {pkg_name} [--config FILE]
         {pkg_name} midi [(list)]
-        {pkg_name} sim var get <variable> [--simconnect-backend <simconnect_backend>]
+        {pkg_name} sim var get <variable> [--simconnect-backend BACKEND]
 
     Options:
-        -h --help                         Show this screen.
-        --version                         Show version.
-        --config -c FILE                  Configuration file location (default: {default_config_file})
-        --simconnect-backend -s BACKEND   SimConnect client backend (default: {default_smc_backend})
+        -h --help                          Show this screen.
+        --version                          Show version.
+        -c, --config FILE                  Configuration file location [default: {default_config_file}]
+        -s, --simconnect-backend BACKEND   SimConnect client backend [default: {default_smc_backend}]
     """
 
+    # __doc__ needs to be formatted first
+    __parse_args.__doc__ = __parse_args.__doc__.format(
+        pkg_name=PKG_NAME,
+        default_config_file=CLI_DEFAULT_CONFIG_FILE,
+        default_smc_backend=CLI_DEFAULT_SIMCONNECT_BACKEND,
+    )
+
     return docopt(
-        __parse_args.__doc__.format(
-            pkg_name=PKG_NAME,
-            default_config_file=CLI_DEFAULT_CONFIG_FILE,
-            default_smc_backend=CLI_DEFAULT_SIMCONNECT_BACKEND,
-        ),
+        __parse_args.__doc__,
         argv=argv,
         version=PKG_VERSION,
     )
@@ -137,11 +139,10 @@ def main(argv: list[str]) -> int:
             event_loop(config_file=options["--config"])
             return 0
 
-    except SystemExit:
-        log.warn("Exiting ...")
-        pass
     except DocoptExit:
         print(__parse_args.__doc__)
+    except SystemExit:
+        log.warn("Exiting ...")
     except Exception as e:
         return __handle_except(e)
     finally:
@@ -178,7 +179,6 @@ def __cleanup():
 
     # Take care of business on the MIDI
     # side of things
-    midi_message_pump_stop()
     midi_cleanup()
 
 
@@ -217,8 +217,6 @@ def __load_mod_from_file(config_file: str):
     return module
 
 
-# FIXME
-# def event_loop(*, config_file: str, simconnect_backend: int) -> None:
 def event_loop(*, config_file: str) -> None:
     """
     Main event loop
@@ -233,7 +231,8 @@ def event_loop(*, config_file: str) -> None:
         config = __load_mod_from_file(config_file)  # Get config as a module
         simc_poll_start()  # Start polling for simc changes ... (does not block)
         midi_message_pump_start()  # Start rolling those MIDI messages
-        # FIXME
+
+        # block until exception
         while True:
             time.sleep(1)
     except ImportError:
