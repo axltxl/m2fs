@@ -17,7 +17,7 @@ from midi2sim import setup
 
 # MIDI device for this configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-MIDI_PORTS_IN = ["Arturia MiniLab mkII 0", "MIDIIN2 (LPX MIDI) 2"]
+MIDI_PORTS_IN = ["Arturia MiniLab mkII 0"]
 
 # Some basics  for making life easier
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
