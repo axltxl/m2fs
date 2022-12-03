@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm", "setuptools-pipfile"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "m2fs"
+description = "Fly on any SimConnect-compatible simulators using your MIDI controller(s)"
+readme = "README.md"
+authors = [
+    { name = "Alejandro Ricoveri", email = "me@axltxl.xyz" }
+]
+requires-python = ">=3.10, <4"
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console	",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Utilities",
+    "Programming Language :: Python :: 3.10",
+]
+dynamic = ["version", "dependencies"] # setuptools-scm
+
+[project.urls]
+homepage = "https://github.com/axltxl/m2fs"
+
+[project.scripts]
+m2fs = "m2fs.__main__:main"
+
+[options]
+packages = ["m2fs"]
+
+[tool.setuptools]
+license-files = ["LICENSE"]
+
+[tool.setuptools_scm]
+write_to = "m2fs/_version.py"
+
+# FIXME: as of the time of this commit
+# these don't quite work :(
+# I still had to rely on a MANIFEST.in
+# for dealing with package data
+# [tool.setuptools.package-data]
+# "*" = ["Pipfile"]
+
+# [tool.setuptools.exclude-package-data]
+# "*" = [
+#     ".vscode/**",
+#     ".gitignore",
+#     "TODO",
+# ]
+
+# Enable setuptools-pipfile
+# -------------------------
+#Setuptools-pipfile provides a way to dynamically link a
+# setuptools dependency configuration to the Pipfile managed by Pipenv.
+[tool.setuptools-pipfile]
+

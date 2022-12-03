@@ -1,5 +1,5 @@
-* Implement --log-level (-vvvvv)
-* Implement: distutils distribution (setup.py)
 * py2exe
+* README
+* Examples README
 
 

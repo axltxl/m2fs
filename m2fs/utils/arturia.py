@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-A dedicated module of utilities for using midi2sim
+A dedicated module of utilities for using m2fs
 on an Arturia MiniLab mkII
 """
 

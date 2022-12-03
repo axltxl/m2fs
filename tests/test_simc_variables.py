@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import math
-from midi2sim import simc
+from m2fs import simc
 
 
 class TestSimConnectVariable:

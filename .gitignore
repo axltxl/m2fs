@@ -1,4 +1,7 @@
 *venv*
 *.pyc
 __pycache__
-dist
+*dist
+build
+*.egg-info
+_version.py

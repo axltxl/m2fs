@@ -8,19 +8,21 @@
             "name": "debug (default)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
                 "-c",
-                "${workspaceFolder}/examples/arturia/minilab_mk2/wt_cj4_config.py"
+                "${workspaceFolder}/examples/arturia/minilab_mk2/wt_cj4_config.py",
+                "-l",
+                "${input:LogLevel}"
             ]
         },
         {
             "name": "debug (no args provided)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "console": "integratedTerminal",
             "justMyCode": true,
         },
@@ -28,7 +30,7 @@
             "name": "debug (help)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
@@ -39,7 +41,7 @@
             "name": "debug (midi list)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "args": [
                 "midi",
                 "list"
@@ -51,7 +53,7 @@
             "name": "debug (sim get variable)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "args": [
                 "sim",
                 "var",
@@ -97,6 +99,19 @@
             ],
             "description": "SimConnect backend",
             "default": "MobiFlight-SimConnect"
+        }
+        {
+            "id": "LogLevel",
+            "type": "pickString",
+            "options": [
+                "verbose",
+                "debug",
+                "info",
+                "warning",
+                "error"
+            ],
+            "description": "Log level",
+            "default": "info"
         }
     ]
 }
