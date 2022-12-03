@@ -1,0 +1,47 @@
+name: Build on Windows
+on: push
+defaults:
+  run:
+    shell: bash
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install toolchain
+        run: |
+          choco install python --version 3.11.0
+          choco install gh
+          pip install --upgrade pip
+          pip install pyinstaller
+
+      - name: Install dependencies
+        run: |
+          pipenv requirements
+          pip install -r requirements.txt
+
+      - uses: paulhatch/semantic-version@v4.0.2
+        name: Create new version number
+        id: version
+        with:
+          tag_prefix: "v"
+
+      - name: git tag
+        id: git-tag
+        run: |
+          git tag ${{ steps.version.version_tag }}
+          git checkout $VER
+
+      - name: Build package
+        run: |
+          python -m build
+
+      - name: Build executable
+        run: |
+          pyinstaller -F -n m2fs -c ${{ github.workspace }}/windows/m2fs.win64.py
+
+      # FIXME
+      # - name: Create GitHub release
+      #   run: |
+      #     gh release create ${{ steps.version.version_tag }} dist/

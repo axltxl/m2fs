@@ -16,8 +16,10 @@
         {
             "label": "python: build windows executable (pyinstaller)",
             "type": "shell",
-            "command": "pyinstaller",
+            "command": "pipenv",
             "args": [
+                "run",
+                "pyinstaller",
                 "-p",
                 "${workspaceFolder}",
                 "-F",
