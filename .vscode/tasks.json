@@ -12,6 +12,23 @@
                 "build"
             ],
             "problemMatcher": []
+        },
+        {
+            "label": "python: build windows executable (pyinstaller)",
+            "type": "shell",
+            "command": "pipenv",
+            "args": [
+                "run",
+                "pyinstaller",
+                "-p",
+                "${workspaceFolder}",
+                "-F",
+                "-n",
+                "m2fs",
+                "-c",
+                "${workspaceFolder}/windows/m2fs.win64.py"
+            ],
+            "problemMatcher": []
         }
     ]
 }
