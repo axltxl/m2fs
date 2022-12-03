@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools-scm", "setuptools-pipfile"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "midi2sim"
+name = "m2fs"
 description = "Fly on any SimConnect-compatible simulators using your MIDI controller(s)"
 readme = "README.md"
 authors = [
@@ -23,19 +23,19 @@ classifiers = [
 dynamic = ["version", "dependencies"] # setuptools-scm
 
 [project.urls]
-homepage = "https://github.com/axltxl/midi2sim"
+homepage = "https://github.com/axltxl/m2fs"
 
 [project.scripts]
-midi2sim = "midi2sim.__main__:main"
+m2fs = "m2fs.__main__:main"
 
 [options]
-packages = ["midi2sim"]
+packages = ["m2fs"]
 
 [tool.setuptools]
 license-files = ["LICENSE"]
 
 [tool.setuptools_scm]
-write_to = "midi2sim/_version.py"
+write_to = "m2fs/_version.py"
 
 # Enable setuptools-pipfile
 # -------------------------

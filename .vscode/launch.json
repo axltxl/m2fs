@@ -8,7 +8,7 @@
             "name": "debug (default)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
@@ -22,7 +22,7 @@
             "name": "debug (no args provided)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "console": "integratedTerminal",
             "justMyCode": true,
         },
@@ -30,7 +30,7 @@
             "name": "debug (help)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
@@ -41,7 +41,7 @@
             "name": "debug (midi list)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "args": [
                 "midi",
                 "list"
@@ -53,7 +53,7 @@
             "name": "debug (sim get variable)",
             "type": "python",
             "request": "launch",
-            "module": "midi2sim",
+            "module": "m2fs",
             "args": [
                 "sim",
                 "var",

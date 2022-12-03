@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-midi2sim configuration file
+m2fs configuration file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 MIDI controller:    Arturia MiniLab mkII
 Aircraft:           Working Title Cessna Citation CJ4
 SimConnect backend: MobiFlight-SimConnect
-Preset file for MIDI controller: midi2sim.minilabmk2
+Preset file for MIDI controller: m2fs.minilabmk2
 """
 
 import math
 
-from midi2sim import midi, simc
-from midi2sim.utils import arturia
-from midi2sim import config
+from m2fs import midi, simc
+from m2fs.utils import arturia
+from m2fs import config
 
 # MIDI device for this configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

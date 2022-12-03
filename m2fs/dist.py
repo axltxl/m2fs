@@ -7,6 +7,6 @@ try:
 except ImportError:
     PKG_VERSION = "dev"
 
-PKG_NAME = "midi2sim"
+PKG_NAME = "m2fs"
 PKG_AUTHOR = "Alejandro Ricoveri"
 PKG_URL = f"github.com/axltxl/{PKG_NAME}"

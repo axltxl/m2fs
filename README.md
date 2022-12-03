@@ -1,4 +1,4 @@
-# midi2sim
+# m2fs
 
 [WIP]
 
