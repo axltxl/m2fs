@@ -1,1 +1,4 @@
 include Pipfile
+exclude .vscode/**
+exclude .gitignore
+exclude TODO

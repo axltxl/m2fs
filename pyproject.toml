@@ -37,6 +37,20 @@ license-files = ["LICENSE"]
 [tool.setuptools_scm]
 write_to = "m2fs/_version.py"
 
+# FIXME: as of the time of this commit
+# these don't quite work :(
+# I still had to rely on a MANIFEST.in
+# for dealing with package data
+# [tool.setuptools.package-data]
+# "*" = ["Pipfile"]
+
+# [tool.setuptools.exclude-package-data]
+# "*" = [
+#     ".vscode/**",
+#     ".gitignore",
+#     "TODO",
+# ]
+
 # Enable setuptools-pipfile
 # -------------------------
 #Setuptools-pipfile provides a way to dynamically link a
