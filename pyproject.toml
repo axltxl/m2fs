@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm", "setuptools-pipfile"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "midi2sim"
+description = "Fly on any SimConnect-compatible simulators using your MIDI controller(s)"
+readme = "README.md"
+authors = [
+    { name = "Alejandro Ricoveri", email = "me@axltxl.xyz" }
+]
+requires-python = ">=3.10, <4"
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console	",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Utilities",
+    "Programming Language :: Python :: 3.10",
+]
+dynamic = ["version", "dependencies"] # setuptools-scm
+
+[project.urls]
+homepage = "https://github.com/axltxl/midi2sim"
+
+[project.scripts]
+midi2sim = "midi2sim.__main__:main"
+
+[options]
+packages = ["midi2sim"]
+
+[tool.setuptools]
+license-files = ["LICENSE"]
+
+[tool.setuptools_scm]
+write_to = "midi2sim/_version.py"
+
+# Enable setuptools-pipfile
+# -------------------------
+#Setuptools-pipfile provides a way to dynamically link a
+# setuptools dependency configuration to the Pipfile managed by Pipenv.
+[tool.setuptools-pipfile]
+

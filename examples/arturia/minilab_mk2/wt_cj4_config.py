@@ -13,7 +13,7 @@ import math
 
 from midi2sim import midi, simc
 from midi2sim.utils import arturia
-from midi2sim import setup
+from midi2sim import config
 
 # MIDI device for this configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -349,7 +349,7 @@ def on_ap_master_change(v):
 
 # Proceed to start up the engines
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-setup(
+config.setup(
     simconnect_backend=simc.SIMCONNECT_BACKEND_MOBIFLIGHT,
     simconnect_var_subs=[(simvars["ap_master"], on_ap_master_change)],
     midi_input_ports=MIDI_PORTS_IN,
