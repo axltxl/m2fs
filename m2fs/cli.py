@@ -233,7 +233,7 @@ def __load_mod_from_file(config_file: str):
     """
 
     config_file_abs_path = os.path.expanduser(os.path.realpath(config_file))
-    module_name = "config"
+    module_name = "usr_config"
 
     log.debug(f"Attempting to load config module at: {config_file_abs_path}")
 
