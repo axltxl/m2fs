@@ -43,9 +43,15 @@ jobs:
         run: |
           python -m build
 
-      - name: Build executable (pyinstaller)
+      - name: Build and try to run executable (pyinstaller)
         run: |
-          pyinstaller -F -n m2fs-${{ steps.version.outputs.version_tag }} -c windows\\m2fs.win64.py
+          EXE_NAME=m2fs-${{ steps.version.outputs.version_tag }}-win64
+          pyinstaller -p ${{ github.workspace }} -F -n $EXE_NAME -c windows\\m2fs.win64.py
+
+          if ! ./dist/${EXE_NAME} --help; then
+            echo "something's not right with the executable distribution"
+            exit 1
+          fi
 
       - name: Create GitHub release
         env:
