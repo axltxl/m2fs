@@ -28,10 +28,8 @@ homepage = "https://github.com/axltxl/m2fs"
 [project.scripts]
 m2fs = "m2fs.__main__:main"
 
-[options]
-packages = ["m2fs"]
-
 [tool.setuptools]
+packages = ["m2fs"]
 license-files = ["LICENSE"]
 
 [tool.setuptools_scm]

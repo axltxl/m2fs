@@ -64,7 +64,7 @@ def connect_input_port(*, name) -> None:
         log.info(f"input port connected: {name}")
 
 
-def get_input_port(*, name) -> (mido.ports.BaseInput | None):
+def get_input_port(*, name) -> mido.ports.BaseInput:
     """Get currently connected input port"""
 
     try:
@@ -94,7 +94,7 @@ def connect_output_port(*, name) -> None:
         __out_ports[name] = out
 
 
-def get_output_port(*, name) -> (mido.ports.BaseOutput | None):
+def get_output_port(*, name) -> mido.ports.BaseOutput:
     """Get MIDI output port by name"""
 
     try:

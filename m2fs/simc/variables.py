@@ -78,7 +78,7 @@ class SimVar:
         return f"SimVar(name='{self.name}', description='{self.description}', value='{self.value}')"
 
 
-def __get_variable_default(name: str) -> (SimVar | None):
+def __get_variable_default(name: str) -> SimVar:
     """Get SimVar from flight sim"""
 
     v = __get_aq().find(name)
@@ -92,7 +92,7 @@ def __get_variable_default(name: str) -> (SimVar | None):
     )
 
 
-def __get_variable_mobiflight(name: str) -> (SimVar | None):
+def __get_variable_mobiflight(name: str) -> SimVar:
     """Get SimVar from flight sim"""
 
     v = __get_aq()
@@ -108,7 +108,7 @@ def __get_variable_mobiflight(name: str) -> (SimVar | None):
     )
 
 
-def get_variable(name: str) -> (SimVar | None):
+def get_variable(name: str) -> SimVar:
     """Get SimVar from flight sim"""
 
     # Get proper AircraftRequests object that is

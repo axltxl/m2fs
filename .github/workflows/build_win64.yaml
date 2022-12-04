@@ -1,4 +1,4 @@
-name: Build on Windows
+name: Build/release on Windows
 on:
   push:
     branches:
@@ -11,39 +11,51 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install toolchain
-        run: |
-          choco install python --version 3.11.0
-          pip install --upgrade pip
-          pip install pyinstaller
-
-      - name: Install dependencies
-        run: |
-          pipenv requirements
-          pip install -r requirements.txt
+        with:
+          fetch-depth: 0
 
       - uses: paulhatch/semantic-version@v4.0.2
         name: Create new version number
         id: version
         with:
+          bump_each_commit: true
           tag_prefix: "v"
+
+      - name: Install build toolchain
+        run: |
+          choco install python --version 3.11.0
+          pip install --upgrade pip setuptools build
+          pip install pyinstaller pipenv
+
+      - name: Install dependencies
+        run: |
+          pipenv requirements > requirements.txt
+          pip install -r requirements.txt
+          rm requirements.txt
 
       - name: git tag
         id: git-tag
         run: |
-          git tag ${{ steps.version.version_tag }}
-          git checkout $VER
+          git tag ${{ steps.version.outputs.version_tag }}
+          git checkout ${{ steps.version.outputs.version_tag }}
 
-      - name: Build package
+      - name: Build package (setuptools)
         run: |
           python -m build
 
-      - name: Build executable
+      - name: Build and try to run executable (pyinstaller)
         run: |
-          pyinstaller -F -n m2fs -c ${{ github.workspace }}/windows/m2fs.win64.py
+          EXE_NAME=m2fs-${{ steps.version.outputs.version_tag }}-win64
+          pyinstaller -p $GITHUB_WORKSPACE -F -n $EXE_NAME -c windows\\m2fs.win64.py
 
-      # FIXME
-      # - name: Create GitHub release
-      #   run: |
-      #     gh release create ${{ steps.version.version_tag }} dist/
+          if ! ./dist/${EXE_NAME} --help; then
+            echo "something's not right with the executable distribution"
+            exit 1
+          fi
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git push origin ${{ steps.version.outputs.version_tag }}
+          gh release create ${{ steps.version.outputs.version_tag }} dist/*
