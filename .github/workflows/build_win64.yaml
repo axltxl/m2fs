@@ -13,6 +13,15 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: paulhatch/semantic-version@v4.0.2
+        name: Create new version number
+        id: version
+        with:
+          bump_each_commit: true
+          tag_prefix: "v"
 
       - name: Install build toolchain
         run: |
@@ -25,13 +34,6 @@ jobs:
           pipenv requirements > requirements.txt
           pip install -r requirements.txt
           rm requirements.txt
-
-      - uses: paulhatch/semantic-version@v4.0.2
-        name: Create new version number
-        id: version
-        with:
-          bump_each_commit: true
-          tag_prefix: "v"
 
       - name: git tag
         id: git-tag
