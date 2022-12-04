@@ -1,10 +1,8 @@
-name: Build on Windows
+name: Build/release on Windows
 on:
-  push
-  # FIXME
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
 defaults:
   run:
     shell: bash
