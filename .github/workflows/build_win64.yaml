@@ -66,7 +66,8 @@ jobs:
 
           # cp .\examples\generic.py .\dist\m2fs\config.py
 
-          Invoke-Expression ".\zip\$Exec_Name\$Exec_Name --help"
+          # Invoke-Expression ".\zip\$Exec_Name\$Exec_Name --help"
+          .\dist\m2fs\m2fs --help
 
       - name: Zip the Windows executable
         uses: vimtor/action-zip@v1
