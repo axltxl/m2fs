@@ -27,8 +27,11 @@ jobs:
         run: |
           choco install python --version 3.11.0
           choco install archive -y
+          refreshenv
+
           pip install --upgrade pip setuptools build
           pip install pyinstaller pipenv
+
           python --version
           pip --version
           pipenv --version
@@ -53,14 +56,14 @@ jobs:
       - name: Build and try to run executable (pyinstaller)
         run: |
 
-          $Exec_Name=m2fs-${{ steps.version.outputs.version_tag }}-win64
+          $Exec_Name = 'm2fs-${{ steps.version.outputs.version_tag }}-win64'
 
           pyinstaller -p $Env:GITHUB_WORKSPACE -F -n $Exec_Name -c .\windows\m2fs.win64.py
 
-          .\dist\${Exec_Name} --help
+          .\dist\$Exec_Name --help
 
           cp examples/generic.py dist/config.py
-          archive create -o "dist/$(Exec_Name)-standalone.zip" README.md "dist/$(Exec_Name).exe" dist/config.py
+          archive create -o "dist/$Exec_Name-standalone.zip" README.md "dist/$Exec_Name.exe" dist/config.py
           rm .\dist\*.exe .\dist\*.py
 
       - name: Create GitHub release
