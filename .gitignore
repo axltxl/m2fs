@@ -6,4 +6,5 @@ build
 *.egg-info
 _version.py
 *.spec
+!m2fs.spec
 requirements.txt

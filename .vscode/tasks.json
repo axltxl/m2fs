@@ -14,23 +14,34 @@
             "problemMatcher": []
         },
         {
-            "label": "python: build windows executable (pyinstaller)",
+            "label": "python: build windows executable (pyinstaller/spec)",
             "type": "shell",
             "command": "pipenv",
             "args": [
                 "run",
                 "pyinstaller",
-                "-p",
-                "${workspaceFolder}",
-                "--add-binary",
-                "'${workspaceFolder}/windows/SimConnect.dll;.'",
-                "-D",
-                "-n",
-                "m2fs",
-                "-c",
-                "${workspaceFolder}/windows/m2fs.win64.py"
+                "${workspaceFolder}/m2fs.spec"
             ],
             "problemMatcher": []
-        }
+        },
+        // {
+        //     "label": "python: build windows executable (pyinstaller)",
+        //     "type": "shell",
+        //     "command": "pipenv",
+        //     "args": [
+        //         "run",
+        //         "pyinstaller",
+        //         "-p",
+        //         "${workspaceFolder}",
+        //         "--add-binary",
+        //         "'${workspaceFolder}/windows/SimConnect.dll;.'",
+        //         "-D",
+        //         "-n",
+        //         "m2fs",
+        //         "-c",
+        //         "${workspaceFolder}/windows/m2fs.win64.py"
+        //     ],
+        //     "problemMatcher": []
+        // }
     ]
 }

@@ -26,7 +26,9 @@ jobs:
       - name: Install build toolchain
         run: |
           choco install python --version 3.11.0
-          refreshenv
+
+          # FIXME: incorporate me
+          # $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
           pip install --upgrade pip setuptools build
           pip install pyinstaller pipenv
@@ -55,22 +57,27 @@ jobs:
       - name: Build and try to run executable (pyinstaller)
         run: |
 
-          $Exec_Name = 'm2fs-${{ steps.version.outputs.version_tag }}-win64'
+          # $Exec_Name = 'm2fs-${{ steps.version.outputs.version_tag }}-win64'
 
-          mkdir zip
+          # mkdir zip
 
-          pyinstaller --distpath zip -p $Env:GITHUB_WORKSPACE --add-binary "$Env:GITHUB_WORKSPACE\windows\SimConnect.dll;." -D -n $Exec_Name -c .\windows\m2fs.win64.py
+          # pyinstaller --distpath zip -p $Env:GITHUB_WORKSPACE --add-binary "$Env:GITHUB_WORKSPACE\windows\SimConnect.dll;." -D -n $Exec_Name -c .\windows\m2fs.win64.py
+          pyinstaller .\m2fs.spec
 
-          cp .\examples\generic.py .\zip\$Exec_Name\config.py
+          # cp .\examples\generic.py .\dist\m2fs\config.py
 
           Invoke-Expression ".\zip\$Exec_Name\$Exec_Name --help"
 
       - name: Zip the Windows executable
         uses: vimtor/action-zip@v1
         with:
-          files: zip/
+          files: dist/m2fs
           recursive: false
           dest: dist/m2fs-${{ steps.version.outputs.version_tag }}-win64-standalone.zip
+
+      - name: Clean up pyinstaller dist before release
+        run: |
+          Remove-Item -Recurse -Force .\dist\m2fs
 
       - name: Create GitHub release
         env:
