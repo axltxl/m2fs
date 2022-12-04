@@ -7,6 +7,10 @@ import threading
 
 import mido
 
+# Make sure we're using rtmidi backend
+import mido.backends.rtmidi
+
+
 from .log import log
 from .port import cleanup as port_cleanup
 from .port import get_all_input_ports
@@ -37,9 +41,6 @@ __in_port_msg_pump_threads = []
 
 def bootstrap():
     """Initialize MIDI backend (mido)"""
-
-    # Make sure we're using rtmidi backend
-    mido.set_backend("mido.backends.rtmidi")
 
     # Initialize MIDI subsystems
     cc_bootstrap()

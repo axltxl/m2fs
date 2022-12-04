@@ -57,18 +57,18 @@ jobs:
 
           mkdir zip
 
-          pyinstaller --distpath zip -p $Env:GITHUB_WORKSPACE -F -n $Exec_Name -c .\windows\m2fs.win64.py
+          pyinstaller --distpath zip -p $Env:GITHUB_WORKSPACE --add-binary ".\windows\SimConnect.dll;." -D -n $Exec_Name -c .\windows\m2fs.win64.py
 
-          cp .\examples\generic.py .\zip\config.py
+          cp .\examples\generic.py .\zip\$Exec_Name\config.py
 
-          Invoke-Expression ".\zip\$Exec_Name --help"
+          Invoke-Expression ".\zip\$Exec_Name\$Exec_Name --help"
 
       - name: Zip the Windows executable
         uses: vimtor/action-zip@v1
         with:
           files: zip/
           recursive: false
-          dest: dist/m2fs-${{ steps.version.outputs.version_tag }}-standalone.zip
+          dest: dist/m2fs-${{ steps.version.outputs.version_tag }}-win64-standalone.zip
 
       - name: Create GitHub release
         env:
