@@ -1,4 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
+# python spec file used by pyinstaller in order
+# to get us a Windows executable file
 
 import os
 
