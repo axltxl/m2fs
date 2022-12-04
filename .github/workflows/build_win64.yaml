@@ -1,8 +1,10 @@
 name: Build on Windows
 on:
-  push:
-    branches:
-      - main
+  push
+  # FIXME
+  # push:
+  #   branches:
+  #     - main
 defaults:
   run:
     shell: bash
