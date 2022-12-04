@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from . import cli
+from .cli import main as cli_main
 
 
 def main() -> int:
-    return cli.main(sys.argv[1:])
+    return cli_main(sys.argv[1:])
 
 
 if __name__ == "__main__":
