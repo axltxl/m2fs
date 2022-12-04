@@ -12,11 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install toolchain
+      - name: Install build toolchain
         run: |
           choco install python --version 3.11.0
           pip install --upgrade pip
-          pip install pyinstaller
+          pip install pyinstaller pipenv
 
       - name: Install dependencies
         run: |
@@ -27,6 +27,7 @@ jobs:
         name: Create new version number
         id: version
         with:
+          bump_each_commit: true
           tag_prefix: "v"
 
       - name: git tag
