@@ -2,7 +2,7 @@ name: Build/release on Windows
 on:
   push:
     branches:
-      - main #
+      - main
 defaults:
   run:
     shell: powershell
