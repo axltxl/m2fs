@@ -42,7 +42,7 @@ from .midi import (
 
 log = Logger(prefix=">> ")
 
-CLI_DEFAULT_CONFIG_DIR = os.path.join(os.path.expanduser("~"), PKG_NAME)
+CLI_DEFAULT_CONFIG_DIR = os.getcwd()
 CLI_DEFAULT_CONFIG_FILE = os.path.join(CLI_DEFAULT_CONFIG_DIR, "config.py")
 CLI_DEFAULT_SIMCONNECT_BACKEND = SIMCONNECT_BACKEND_DEFAULT_NAME
 CLI_DEFAULT_LOG_LEVEL = "info"
@@ -83,7 +83,7 @@ def __parse_args(argv: list[str]) -> dict:
     Options:
         -h --help                          Show this screen.
         --version                          Show version.
-        -c, --config FILE                  Configuration file location [default: {default_config_file}]
+        -c, --config FILE                  Configuration file location [default: <current_working_directory>/config.py]
         -s, --simconnect-backend BACKEND   SimConnect client backend [default: {default_smc_backend}]
         -l, --log-level LVL                Log level [default: {default_log_level}]
     """
@@ -91,7 +91,6 @@ def __parse_args(argv: list[str]) -> dict:
     # __doc__ needs to be formatted first
     __parse_args.__doc__ = __parse_args.__doc__.format(
         pkg_name=PKG_NAME,
-        default_config_file=CLI_DEFAULT_CONFIG_FILE,
         default_smc_backend=CLI_DEFAULT_SIMCONNECT_BACKEND,
         default_log_level=CLI_DEFAULT_LOG_LEVEL,
     )

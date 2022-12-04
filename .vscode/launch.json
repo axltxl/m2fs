@@ -13,7 +13,7 @@
             "justMyCode": true,
             "args": [
                 "-c",
-                "${workspaceFolder}/examples/arturia/minilab_mk2/wt_cj4_config.py",
+                "${input:ConfigFile}",
                 "-l",
                 "${input:LogLevel}"
             ]
@@ -99,7 +99,7 @@
             ],
             "description": "SimConnect backend",
             "default": "MobiFlight-SimConnect"
-        }
+        },
         {
             "id": "LogLevel",
             "type": "pickString",
@@ -112,6 +112,16 @@
             ],
             "description": "Log level",
             "default": "info"
+        },
+        {
+            "id": "ConfigFile",
+            "description": "Configuration file",
+            "type": "pickString",
+            "options": [
+                "${workspaceFolder}/examples/generic.py",
+                "${workspaceFolder}/examples/arturia/minilab_mk2/wt_cj4_config.py"
+            ],
+            "default": "${workspaceFolder}/examples/arturia/minilab_mk2/wt_cj4_config.py",
         }
     ]
 }
