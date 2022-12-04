@@ -5,7 +5,7 @@ on:
       - main
 defaults:
   run:
-    shell: bash
+    shell: powershell
 jobs:
   build:
     runs-on: windows-2022
@@ -24,14 +24,21 @@ jobs:
       - name: Install build toolchain
         run: |
           choco install python --version 3.11.0
+          refreshenv
+
           pip install --upgrade pip setuptools build
           pip install pyinstaller pipenv
 
+          python --version
+          pip --version
+          pipenv --version
+          pyinstaller --version
+
       - name: Install dependencies
         run: |
-          pipenv requirements > requirements.txt
-          pip install -r requirements.txt
-          rm requirements.txt
+          pipenv requirements | Out-File requirements.txt
+          pip install -r .\requirements.txt
+          rm .\requirements.txt
 
       - name: git tag
         id: git-tag
@@ -45,17 +52,27 @@ jobs:
 
       - name: Build and try to run executable (pyinstaller)
         run: |
-          EXE_NAME=m2fs-${{ steps.version.outputs.version_tag }}-win64
-          pyinstaller -p $GITHUB_WORKSPACE -F -n $EXE_NAME -c windows\\m2fs.win64.py
 
-          if ! ./dist/${EXE_NAME} --help; then
-            echo "something's not right with the executable distribution"
-            exit 1
-          fi
+          $Exec_Name = 'm2fs-${{ steps.version.outputs.version_tag }}-win64'
+
+          mkdir zip
+
+          pyinstaller --distpath zip -p $Env:GITHUB_WORKSPACE -F -n $Exec_Name -c .\windows\m2fs.win64.py
+
+          cp .\examples\generic.py .\zip\config.py
+
+          Invoke-Expression ".\zip\$Exec_Name --help"
+
+      - name: Zip the Windows executable
+        uses: vimtor/action-zip@v1
+        with:
+          files: zip/
+          recursive: false
+          dest: dist/m2fs-${{ steps.version.outputs.version_tag }}-standalone.zip
 
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           git push origin ${{ steps.version.outputs.version_tag }}
-          gh release create ${{ steps.version.outputs.version_tag }} dist/*
+          gh release create ${{ steps.version.outputs.version_tag }} (get-item .\dist\*)

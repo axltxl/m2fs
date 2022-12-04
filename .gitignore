@@ -6,3 +6,4 @@ build
 *.egg-info
 _version.py
 *.spec
+requirements.txt
