@@ -70,7 +70,7 @@ jobs:
         with:
           files: zip/
           recursive: false
-          dest: dist/m2fs-${{ steps.version.outpus.version_tag }}-standalone.zip
+          dest: dist/m2fs-${{ steps.version.outputs.version_tag }}-standalone.zip
 
       - name: Create GitHub release
         env:
