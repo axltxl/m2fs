@@ -1,8 +1,10 @@
 name: Build/release on Windows
 on:
-  push:
-    branches:
-      - main
+  push
+  # FIXME
+  # push:
+  #   branches:
+  #     - main
 defaults:
   run:
     shell: bash
@@ -24,6 +26,7 @@ jobs:
       - name: Install build toolchain
         run: |
           choco install python --version 3.11.0
+          choco install archive -y
           pip install --upgrade pip setuptools build
           pip install pyinstaller pipenv
 
@@ -45,6 +48,8 @@ jobs:
 
       - name: Build and try to run executable (pyinstaller)
         run: |
+          set -x
+
           EXE_NAME=m2fs-${{ steps.version.outputs.version_tag }}-win64
           pyinstaller -p $GITHUB_WORKSPACE -F -n $EXE_NAME -c windows\\m2fs.win64.py
 
@@ -52,6 +57,10 @@ jobs:
             echo "something's not right with the executable distribution"
             exit 1
           fi
+
+          cp examples/generic.py dist/config.py
+          archive create -o dist/${EXE_NAME}-standalone.zip README.md dist/${EXE_NAME}.exe dist/config.py
+          rm -f dist/*.exe dist/*.py
 
       - name: Create GitHub release
         env:
