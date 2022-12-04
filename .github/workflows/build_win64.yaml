@@ -26,7 +26,6 @@ jobs:
       - name: Install build toolchain
         run: |
           choco install python --version 3.11.0
-          choco install archive -y
           refreshenv
 
           pip install --upgrade pip setuptools build
@@ -58,13 +57,20 @@ jobs:
 
           $Exec_Name = 'm2fs-${{ steps.version.outputs.version_tag }}-win64'
 
-          pyinstaller -p $Env:GITHUB_WORKSPACE -F -n $Exec_Name -c .\windows\m2fs.win64.py
+          mkdir zip
 
-          Invoke-Expression ".\dist\$Exec_Name --help"
+          pyinstaller --distpath zip -p $Env:GITHUB_WORKSPACE -F -n $Exec_Name -c .\windows\m2fs.win64.py
 
-          cp .\examples\generic.py .\dist\config.py
-          archive create -o .\dist\$Exec_Name-standalone.zip README.md .\dist\$Exec_Name.exe .\dist\config.py
-          rm .\dist\*.exe .\dist\*.py
+          cp .\examples\generic.py .\zip\config.py
+
+          Invoke-Expression ".\zip\$Exec_Name --help"
+
+      - name: Zip the Windows executable
+        uses: vimtor/action-zip@v1
+        with:
+          files: zip/
+          recursive: false
+          dest: dist/m2fs-${{ steps.version.outpus.version_tag }}-standalone.zip
 
       - name: Create GitHub release
         env:
