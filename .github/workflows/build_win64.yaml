@@ -51,4 +51,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          git push origin ${{ steps.version.outputs.version_tag }}
           gh release create ${{ steps.version.outputs.version_tag }} dist/*
