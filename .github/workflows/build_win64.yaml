@@ -39,15 +39,16 @@ jobs:
           git tag ${{ steps.version.outputs.version_tag }}
           git checkout ${{ steps.version.outputs.version_tag }}
 
-      - name: Build package
+      - name: Build package (setuptools)
         run: |
           python -m build
 
-      - name: Build executable
+      - name: Build executable (pyinstaller)
         run: |
-          pyinstaller -F -n m2fs-${{ steps.version.outputs.version_tag }} -c ${{ github.workspace }}/windows/m2fs.win64.py
+          pyinstaller -F -n m2fs-${{ steps.version.outputs.version_tag }} -c ${{ github.workspace }}\windows\m2fs.win64.py
 
-      # FIXME
-      # - name: Create GitHub release
-      #   run: |
-      #     gh release create ${{ steps.version.outputs.version_tag }} dist/*
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ steps.version.outputs.version_tag }} ${{ github.workspace }}\dist\*
