@@ -1,10 +1,8 @@
 name: Build/release on Windows
 on:
-  # FIXME: let's burn more minutes on this thing
-  push
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main #
 defaults:
   run:
     shell: powershell
@@ -27,8 +25,7 @@ jobs:
         run: |
           choco install python --version 3.11.0
 
-          # FIXME: incorporate me
-          # $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+          Update-SessionEnvironment
 
           pip install --upgrade pip setuptools build
           pip install pyinstaller pipenv
@@ -57,16 +54,8 @@ jobs:
       - name: Build and try to run executable (pyinstaller)
         run: |
 
-          # $Exec_Name = 'm2fs-${{ steps.version.outputs.version_tag }}-win64'
-
-          # mkdir zip
-
-          # pyinstaller --distpath zip -p $Env:GITHUB_WORKSPACE --add-binary "$Env:GITHUB_WORKSPACE\windows\SimConnect.dll;." -D -n $Exec_Name -c .\windows\m2fs.win64.py
           pyinstaller .\m2fs.spec
 
-          # cp .\examples\generic.py .\dist\m2fs\config.py
-
-          # Invoke-Expression ".\zip\$Exec_Name\$Exec_Name --help"
           .\dist\m2fs\m2fs --help
 
       - name: Zip the Windows executable
