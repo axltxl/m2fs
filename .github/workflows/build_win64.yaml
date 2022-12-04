@@ -22,8 +22,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pipenv requirements
+          pipenv requirements > requirements.txt
           pip install -r requirements.txt
+          rm requirements.txt
 
       - uses: paulhatch/semantic-version@v4.0.2
         name: Create new version number
