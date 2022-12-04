@@ -25,7 +25,7 @@ jobs:
         run: |
           choco install python --version 3.11.0
 
-          Update-SessionEnvironment
+          refreshenv
 
           pip install --upgrade pip setuptools build
           pip install pyinstaller pipenv
