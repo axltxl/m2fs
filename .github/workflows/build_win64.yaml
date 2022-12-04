@@ -1,8 +1,10 @@
 name: Build/release on Windows
 on:
-  push:
-    branches:
-      - main
+  # FIXME: let's burn more minutes on this thing
+  push
+  # push:
+  #   branches:
+  #     - main
 defaults:
   run:
     shell: powershell
@@ -57,7 +59,7 @@ jobs:
 
           mkdir zip
 
-          pyinstaller --distpath zip -p $Env:GITHUB_WORKSPACE --add-binary ".\windows\SimConnect.dll;." -D -n $Exec_Name -c .\windows\m2fs.win64.py
+          pyinstaller --distpath zip -p $Env:GITHUB_WORKSPACE --add-binary $Env:GITHUB_WORKSPACE\windows\SimConnect.dll;. -D -n $Exec_Name -c .\windows\m2fs.win64.py
 
           cp .\examples\generic.py .\zip\$Exec_Name\config.py
 
