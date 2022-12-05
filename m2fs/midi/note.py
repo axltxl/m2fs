@@ -8,7 +8,7 @@ from .message import IdMessage, TYPE_NOTE
 # List of note handlers (functions)
 __note_message_handlers = {}
 
-# FIXME: doc me
+# MIDI note handlers mutex for parallel access
 __note_message_handlers_mutex = threading.Lock()
 
 # List of all MIDI notes
@@ -169,10 +169,6 @@ def get_handler(*, note):
 
     global __note_message_handlers, __note_message_handlers_mutex
 
-    # FIXME: needs mutex
-    # FIXME: it will happen that a handler is no more
-    # FIXME: at worst it'll be __null_cc_message_handler
-    # FIXME: still, deal with KeyError and return None
     with __note_message_handlers_mutex:
         return __note_message_handlers[note]
 
@@ -198,7 +194,6 @@ def subscribe(*, note: int, handler):
         log.debug(msg)
         handler(msg)
 
-    # FIXME: this variable needs a mutex
     with __note_message_handlers_mutex:
         __note_message_handlers[note] = wrapper
 

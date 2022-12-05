@@ -4,12 +4,18 @@ import sys
 import os
 import traceback
 import threading
+import time
 
 import mido
 
 # Make sure we're using rtmidi backend
 import mido.backends.rtmidi
 
+# There are message pump threads created per each MIDI input
+# port specified on config. Each one of those
+# polling for input indefinitely at the frequency
+# set here
+MIDI_IN_THREAD_SLEEP_TIME = 1.0 / 66  # 66 Hz
 
 from .log import log
 from .port import cleanup as port_cleanup
@@ -48,10 +54,11 @@ def bootstrap():
     pw_bootstrap()
 
 
-# FIXME
 def reset() -> None:
-    cleanup()
-    bootstrap()
+    """Reset MIDI engine to defaults"""
+
+    cleanup()  # do housekeeping
+    bootstrap()  # bootstrap the MIDI engine again
 
 
 def __get_midi_message(msg) -> BaseMessage:
@@ -143,10 +150,14 @@ def __in_port_message_pump(in_port: mido.ports.BaseInput):
     while not in_port.closed:
         for msg in in_port.iter_pending():
             __handle_msg(msg)
+        time.sleep(
+            MIDI_IN_THREAD_SLEEP_TIME
+        )  # so, it does not eat CPU time unnecessarily
 
 
-# FIXME
 def message_pump_stop() -> None:
+    """Stop all MIDI input port message pump threads"""
+
     global __in_port_msg_pump_threads
     for t in __in_port_msg_pump_threads:
         log.debug(f"stopping message pump thread: {t.getName()}")
@@ -158,7 +169,6 @@ def message_pump_stop() -> None:
     log.debug("stopped all message pump threads")
 
 
-# FIXME: I should be started at config load time (setup)
 def message_pump_start() -> None:
     """Main MIDI event message pump"""
 
@@ -172,10 +182,6 @@ def message_pump_start() -> None:
         # (set to daemon, so it doesn't need to be explicitely dealt with
         # when exiting)
         # NOTE: consider a ThreadPoolExecutor in the future
-        # FIXME: can't be a daemon anymore
-        # msg_pump_thread = threading.Thread(
-        #     target=__in_port_message_pump, args=(port,), daemon=True
-        # )
         msg_pump_thread = threading.Thread(target=__in_port_message_pump, args=(port,))
         msg_pump_thread.setName(name=f"midi:in_port:{port.name}")
         msg_pump_thread.start()

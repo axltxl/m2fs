@@ -18,13 +18,12 @@ from .midi import (
 )
 from .simc import (
     connect as simc_connect,
-    disconnect as simc_disconnect,
     subscribe_to_simvar as simc_subscribe_to_simvar,
     poll_start as simc_poll_start,
     reset as simc_reset,
 )
 from .simc import SIMCONNECT_BACKEND_DEFAULT
-from .simc.poll import poll_reset
+from .log import log
 
 
 def ___batch_assign_cc_handlers(h_map: list[tuple[int, callable]]):
@@ -45,9 +44,8 @@ def ___batch_subscribe_to_simvars(h_map: list[tuple[str, callable]]):
         simc_subscribe_to_simvar(simvar, handler=handler)
 
 
-# FIXME
-__config_module = None
-__config_module_abs_path = ""
+__config_module = None  # configuration as a python module
+__config_module_abs_path = ""  # absolute path to configuration file
 
 CONFIG_MODULE_SPEC_NAME = "m2fs.usr_config"
 
@@ -62,21 +60,15 @@ def load(config_file: str) -> None:
 
     global __config_module, __config_module_abs_path
 
-    # FIXME
+    log.debug(f"Attempting to load config module at: {config_file}")
+
+    # Make sure the config module is not a sys.modules already
     try:
         del sys.modules[CONFIG_MODULE_SPEC_NAME]
     except KeyError:
         pass
 
     __config_module_abs_path = os.path.expanduser(os.path.realpath(config_file))
-
-    # # FIXME
-    # spec = importlib.util.spec_from_file_location(
-    #     CONFIG_MODULE_NAME, config_file_abs_path
-    # )
-    # __config_module = importlib.util.module_from_spec(spec)
-    # sys.modules[CONFIG_MODULE_NAME] = __config_module
-    # spec.loader.exec_module(__config_module)
 
     # specify the module that needs to be
     # imported relative to the path of the
@@ -95,22 +87,30 @@ def load(config_file: str) -> None:
     # when a module is imported or reloaded.
     spec.loader.exec_module(__config_module)
 
+    log.info(f"{config_file}: config module successfully loaded!")
 
-# FIXME
+
 def reload() -> None:
+    """
+    Reload configuration module
+
+    This will make sure a hot configuration can be done.
+    It'll make sure all internal state has been set to defaults
+    (any housekeeping, etc.), and then it proceeds to reload
+    the config module.
+    """
+
     global __config_module_abs_path
 
-    # close all MIDI inputs and outputs
-    # reset all MIDI subscriptions
-    # CONTINUEHERE: CC, note and pitchwheel handlers need a mutex
+    log.warn("!!! CONFIG RELOAD !!!")
+
+    # Reset MIDI engine
     midi_reset()
 
-    # FIXME
+    # Reset SimConnect client and data
     simc_reset()
 
-    # https://stackoverflow.com/questions/437589/how-do-i-unload-reload-a-python-module
-    # FIXME: doc me
-    # load(config_file)
+    # Load the configuration file (again)
     load(config_file=__config_module_abs_path)
 
 
@@ -163,6 +163,5 @@ def setup(
     if simconnect_var_subs is not None:
         ___batch_subscribe_to_simvars(simconnect_var_subs)
 
-    # FIXME: doc me
     simc_poll_start()  # Start polling for simc changes ... (does not block)
     midi_message_pump_start()  # Start rolling those MIDI messages

@@ -9,7 +9,7 @@ from .message import TYPE_CC
 # List of CC handlers (functions)
 __cc_message_handlers = {}
 
-# FIXME: doc me
+# CC handlers mutex for parallel access
 __cc_message_handlers_mutex = threading.Lock()
 
 # List of all MIDI CCs
@@ -165,10 +165,6 @@ def get_handler(*, cc):
 
     global __cc_message_handlers, __cc_message_handlers_mutex
 
-    # FIXME: needs mutex
-    # FIXME: it will happen that a handler is no more
-    # FIXME: at worst it'll be __null_cc_message_handler
-    # FIXME: still, deal with KeyError and return None
     with __cc_message_handlers_mutex:
         return __cc_message_handlers[cc]
 
@@ -194,7 +190,6 @@ def subscribe(*, cc: int, handler):
         log.debug(msg)
         handler(msg)
 
-    # FIXME: this variable needs a mutex
     with __cc_message_handlers_mutex:
         __cc_message_handlers[cc] = wrapper
 

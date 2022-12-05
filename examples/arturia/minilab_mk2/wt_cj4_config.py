@@ -347,8 +347,9 @@ def on_ap_master_change(v):
     ap_on = bool(math.floor(v.value))
 
 
-# FIXME
 def config_reload(m):
+    """Hot configuration reload"""
+
     config.reload()
 
 
@@ -404,6 +405,6 @@ config.setup(
         (AMK2_PAD_11, ap_appr_toggle),  # Approach mode
         # Reload config
         # ----------------------
-        (AMK2_PAD_02, config_reload),
+        (midi.NOTE_048, config_reload),
     ],
 )

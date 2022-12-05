@@ -9,7 +9,7 @@ from .message import TYPE_PITCHWHEEL
 
 __pitchwheel_message_handler = None
 
-# FIXME: doc me
+# Pitchwheel handler mutex for parallel access
 __pitchwheel_message_handler_mutex = threading.Lock()
 
 
@@ -33,7 +33,6 @@ def get_handler():
 
     global __pitchwheel_message_handler, __pitchwheel_message_handler_mutex
 
-    # FIXME: needs mutex
     with __pitchwheel_message_handler_mutex:
         return __pitchwheel_message_handler
 
@@ -57,7 +56,6 @@ def subscribe(*, handler):
         log.debug(msg)
         handler(msg)
 
-    # FIXME: needs mutex
     with __pitchwheel_message_handler_mutex:
         __pitchwheel_message_handler = wrapper
 

@@ -21,20 +21,20 @@ from .backend import (
 from .mobiflight import SimConnectMobiFlight
 from .poll import poll_reset
 
-# FIXME: doc me
+# SimConnect client mutex for parallel access
 __smc_client_mutex = threading.Lock()
 
 # SimConnect client
 __smc_client = None
 
-# FIXME
+
 def reset():
+    """Reset SimConnect client and data to defaults"""
+
     # reset SimVar poll
     poll_reset()
 
     # disconnect from Simulator
-    # CONTINUEHERE: main client needs a mutex
-    # FIXME: client needs mutex
     disconnect()
 
 

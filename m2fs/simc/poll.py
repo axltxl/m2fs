@@ -21,15 +21,13 @@ class SubSimVar:
         self.handler = handler
 
 
-# FIXME: doc me
+# Poll thread subscriptions mutex for parallel access
 __poll_simvar_subs_mutex = threading.Lock()
-# __poll_quit_mutex = threading.Lock()
 
 __poll_simvar_subs = []  # poll subscribers
 __poll_quit = False
 
 # Poll thread implementation
-# FIXME
 __poll_thread = None
 
 
@@ -49,9 +47,8 @@ def __poll():
     """
 
     global __poll_quit, __poll_simvar_subs, __poll_simvar_subs_mutex
-    # FIXME: doc me
+
     while not __poll_quit:
-        # FIXME: __poll_simvar_subs needs mutex
         with __poll_simvar_subs_mutex:
             for sub in __poll_simvar_subs:
                 __poll_notify_on_change(sub)
@@ -81,13 +78,16 @@ def __poll_notify_on_change(sub: SubSimVar) -> None:
         sub.handler(simvar)
 
 
-# FIXME:
 def poll_reset() -> None:
+    """Reset poll thread"""
+
     global __poll_simvar_subs, __poll_simvar_subs_mutex
+
+    # get rid of any subs
     with __poll_simvar_subs_mutex:
         __poll_simvar_subs = []
 
-    # FIXME
+    # restart poll thread
     poll_stop()
     poll_start()
 
@@ -97,10 +97,11 @@ def poll_start() -> None:
 
     global __poll_thread, __poll_quit
 
-    # FIXME
+    # Reset quit flag
     __poll_quit = False
 
-    # FIXME: tell me why
+    # Regardless of how this function is called, we have to make sure
+    # we're not attempting to recreate the thread
     if __poll_thread is None:
         log.debug("poll: SimConnect: start polling for SimVar changes ...")
         __poll_thread = threading.Thread(target=__poll, name=__get_thread_name())

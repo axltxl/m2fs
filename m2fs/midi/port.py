@@ -10,7 +10,7 @@ from .exceptions import MIDIException
 __in_ports = {}
 __out_ports = {}
 
-# FIXME: doc me
+# Mutexes for parallel access
 __in_ports_mutex = threading.Lock()
 __out_ports_mutex = threading.Lock()
 
@@ -125,7 +125,6 @@ def get_output_port(*, name) -> mido.ports.BaseOutput:
 def cleanup() -> None:
     """Close all MIDI ports and do housekeeping"""
 
-    # FIXME: vanish all port threads
     global __out_ports, __out_ports_mutex
     global __in_ports, __in_ports_mutex
 
@@ -134,14 +133,14 @@ def cleanup() -> None:
         for name, port in __in_ports.items():
             log.info(f"closing input port: {name}")
             __close_port(port)
-        __in_ports = {}  # FIXME: doc me
+        __in_ports = {}  # vanish all traces of MIDI ports
 
     # Close all opened MIDI output ports
     with __out_ports_mutex:
         for name, port in __out_ports.items():
             log.info(f"closing output port: {name}")
             __close_port(port)
-        __out_ports = {}  # FIXME: doc me
+        __out_ports = {}  # vanish all traces of MIDI ports
 
 
 def __close_port(port: mido.ports.BasePort) -> None:
