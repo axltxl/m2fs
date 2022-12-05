@@ -21,14 +21,17 @@ jobs:
           bump_each_commit: true
           tag_prefix: "v"
 
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
       - name: Install build toolchain
         run: |
-          choco install python --version 3.11.0
+          python --version
 
           pip install --upgrade pip setuptools build
           pip install pyinstaller pipenv
 
-          python --version
           pip --version
           pipenv --version
           pyinstaller --version
