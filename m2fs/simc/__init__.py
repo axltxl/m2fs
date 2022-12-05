@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .client import (
-    connect,
-    disconnect,
-)
+from .client import connect, disconnect, reset
 
 from .const import (
     SIMCONNECT_BACKEND_DEFAULT,

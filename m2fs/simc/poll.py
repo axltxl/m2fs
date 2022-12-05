@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import random
 import threading
 import time
 
@@ -20,8 +21,19 @@ class SubSimVar:
         self.handler = handler
 
 
+# Poll thread subscriptions mutex for parallel access
+__poll_simvar_subs_mutex = threading.Lock()
+
 __poll_simvar_subs = []  # poll subscribers
 __poll_quit = False
+
+# Poll thread implementation
+__poll_thread = None
+
+
+def __get_thread_name() -> str:
+    id = random.randint(0, 1000)
+    return f"simc:poll:{id:05}"
 
 
 def __poll():
@@ -34,16 +46,13 @@ def __poll():
     last survey
     """
 
-    global __poll_quit
+    global __poll_quit, __poll_simvar_subs, __poll_simvar_subs_mutex
+
     while not __poll_quit:
-        log.verbose("SimVar: Polling for changes ...")
-        for sub in __poll_simvar_subs:
-            __poll_notify_on_change(sub)
+        with __poll_simvar_subs_mutex:
+            for sub in __poll_simvar_subs:
+                __poll_notify_on_change(sub)
         time.sleep(POLL_TICK_PERIOD)  # do not be so aggresive
-
-
-# Poll thread implementation
-__poll_thread = threading.Thread(target=__poll)
 
 
 def subscribe_to_simvar(name: str, *, handler: callable) -> None:
@@ -53,8 +62,9 @@ def subscribe_to_simvar(name: str, *, handler: callable) -> None:
     Upon a SimVar change, handler will be called
     """
 
-    log.info(f"SimVar: sub: {name} => {handler.__name__}")
-    __poll_simvar_subs.append(SubSimVar(simvar=get_variable(name), handler=handler))
+    with __poll_simvar_subs_mutex:
+        log.info(f"SimVar: sub: {name} => {handler.__name__}")
+        __poll_simvar_subs.append(SubSimVar(simvar=get_variable(name), handler=handler))
 
 
 def __poll_notify_on_change(sub: SubSimVar) -> None:
@@ -68,13 +78,36 @@ def __poll_notify_on_change(sub: SubSimVar) -> None:
         sub.handler(simvar)
 
 
+def poll_reset() -> None:
+    """Reset poll thread"""
+
+    global __poll_simvar_subs, __poll_simvar_subs_mutex
+
+    # get rid of any subs
+    with __poll_simvar_subs_mutex:
+        __poll_simvar_subs = []
+
+    # restart poll thread
+    poll_stop()
+    poll_start()
+
+
 def poll_start() -> None:
     """Start poll thread"""
 
-    global __poll_thread
+    global __poll_thread, __poll_quit
 
-    log.debug("SimConnect: start polling for SimVar changes ...")
-    __poll_thread.start()
+    # Reset quit flag
+    __poll_quit = False
+
+    # Regardless of how this function is called, we have to make sure
+    # we're not attempting to recreate the thread
+    if __poll_thread is None:
+        log.debug("poll: SimConnect: start polling for SimVar changes ...")
+        __poll_thread = threading.Thread(target=__poll, name=__get_thread_name())
+        __poll_thread.start()
+    else:
+        log.debug(f"poll: thread already started ({__poll_thread.getName()})")
 
 
 def poll_stop() -> None:
@@ -89,3 +122,5 @@ def poll_stop() -> None:
     if __poll_thread.is_alive():
         __poll_quit = True
         __poll_thread.join()
+
+    __poll_thread = None

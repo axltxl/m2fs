@@ -4,12 +4,18 @@ import sys
 import os
 import traceback
 import threading
+import time
 
 import mido
 
 # Make sure we're using rtmidi backend
 import mido.backends.rtmidi
 
+# There are message pump threads created per each MIDI input
+# port specified on config. Each one of those
+# polling for input indefinitely at the frequency
+# set here
+MIDI_IN_THREAD_SLEEP_TIME = 1.0 / 66  # 66 Hz
 
 from .log import log
 from .port import cleanup as port_cleanup
@@ -46,6 +52,13 @@ def bootstrap():
     cc_bootstrap()
     note_bootstrap()
     pw_bootstrap()
+
+
+def reset() -> None:
+    """Reset MIDI engine to defaults"""
+
+    cleanup()  # do housekeeping
+    bootstrap()  # bootstrap the MIDI engine again
 
 
 def __get_midi_message(msg) -> BaseMessage:
@@ -119,19 +132,47 @@ def cleanup() -> None:
     """Take care of business"""
 
     port_cleanup()
+    message_pump_stop()
 
 
 def __in_port_message_pump(in_port: mido.ports.BaseInput):
     """Input port message pump"""
 
-    for msg in in_port:
-        __handle_msg(msg)
+    # Source: https://mido.readthedocs.io/en/latest/ports.html
+    # > This will iterate over messages as they arrive on the port until the port closes.
+    # > (So far only socket ports actually close by themselves. This happens if the other end disconnects.)
+    # for msg in in_port:
+    #     __handle_msg(msg)
+
+    # > This will iterate over all messages that have already arrived.
+    # > It is typically used in main loops where you want to do something
+    # > else while you wait for messages:
+    while not in_port.closed:
+        for msg in in_port.iter_pending():
+            __handle_msg(msg)
+        time.sleep(
+            MIDI_IN_THREAD_SLEEP_TIME
+        )  # so, it does not eat CPU time unnecessarily
+
+
+def message_pump_stop() -> None:
+    """Stop all MIDI input port message pump threads"""
+
+    global __in_port_msg_pump_threads
+    for t in __in_port_msg_pump_threads:
+        log.debug(f"stopping message pump thread: {t.getName()}")
+        try:
+            t.join()
+        except RuntimeError:
+            pass
+    __in_port_msg_pump_threads = []
+    log.debug("stopped all message pump threads")
 
 
 def message_pump_start() -> None:
     """Main MIDI event message pump"""
 
-    global __in_port_msg_pump_threads, __message_pump_quit
+    global __in_port_msg_pump_threads
 
     for port in get_all_input_ports():
 
@@ -141,9 +182,8 @@ def message_pump_start() -> None:
         # (set to daemon, so it doesn't need to be explicitely dealt with
         # when exiting)
         # NOTE: consider a ThreadPoolExecutor in the future
-        msg_pump_thread = threading.Thread(
-            target=__in_port_message_pump, args=(port,), daemon=True
-        )
+        msg_pump_thread = threading.Thread(target=__in_port_message_pump, args=(port,))
+        msg_pump_thread.setName(name=f"midi:in_port:{port.name}")
         msg_pump_thread.start()
 
         __in_port_msg_pump_threads.append(msg_pump_thread)

@@ -10,7 +10,7 @@ from .const import (
     SIMCONNECT_BACKEND_MOBIFLIGHT_NAME,
 )
 
-__smc_backend = SIMCONNECT_BACKEND_DEFAULT
+__sm_backend = SIMCONNECT_BACKEND_DEFAULT
 
 
 def get_backend() -> int:

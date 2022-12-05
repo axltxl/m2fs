@@ -26,14 +26,18 @@ __simvar_aq_mutex = threading.Lock()
 
 # SimConnect client
 __simc_client = None
+__simc_client_mutex = threading.Lock()
 
 
 def cleanup():
     """Housekeeping"""
 
     global __simvar_aq, __simc_client
-    __simvar_aq = None
-    __simc_client = None
+    with __simvar_aq_mutex:
+        __simvar_aq = None
+
+    with __simc_client_mutex:
+        __simc_client = None
 
 
 def update_client(client: SimConnect.SimConnect):
@@ -41,7 +45,14 @@ def update_client(client: SimConnect.SimConnect):
     # we need to make sure that global objects in variables
     # module have been reset upon changing a client backend
     cleanup()
-    __simc_client = client
+    with __simc_client_mutex:
+        __simc_client = client
+
+
+def __get_client():
+    global __simc_client
+    with __simc_client_mutex:
+        return __simc_client
 
 
 def __get_aq() -> SimConnect.AircraftRequests:
@@ -51,11 +62,11 @@ def __get_aq() -> SimConnect.AircraftRequests:
     with __simvar_aq_mutex:
         if __simvar_aq is None:
             if get_backend() == SIMCONNECT_BACKEND_MOBIFLIGHT:
-                __simvar_aq = MobiFlightVariableRequests(__simc_client)
+                __simvar_aq = MobiFlightVariableRequests(__get_client())
                 __simvar_aq.clear_sim_variables()
             else:
                 __simvar_aq = SimConnect.AircraftRequests(
-                    __simc_client, _time=SIMCONNECT_CACHE_TTL_MS
+                    __get_client(), _time=SIMCONNECT_CACHE_TTL_MS
                 )
         return __simvar_aq
 

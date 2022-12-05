@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import threading
+
 from .log import log
 from .message import IdMessage, TYPE_NOTE
 
 # List of note handlers (functions)
 __note_message_handlers = {}
 
+# MIDI note handlers mutex for parallel access
+__note_message_handlers_mutex = threading.Lock()
 
 # List of all MIDI notes
 # Source: https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
@@ -163,7 +167,10 @@ class NoteMessage(IdMessage):
 def get_handler(*, note):
     """Get a handler for a particular MIDI note"""
 
-    return __note_message_handlers[note]
+    global __note_message_handlers, __note_message_handlers_mutex
+
+    with __note_message_handlers_mutex:
+        return __note_message_handlers[note]
 
 
 def bootstrap() -> None:
@@ -177,6 +184,8 @@ def bootstrap() -> None:
 def subscribe(*, note: int, handler):
     """Map a handler to changes done on a CC"""
 
+    global __note_message_handlers, __note_message_handlers_mutex
+
     log.debug(f"NOTE: subscribing handler [{note}] -> {handler.__name__}")
 
     # Decorator pattern is used mostly
@@ -185,7 +194,8 @@ def subscribe(*, note: int, handler):
         log.debug(msg)
         handler(msg)
 
-    __note_message_handlers[note] = wrapper
+    with __note_message_handlers_mutex:
+        __note_message_handlers[note] = wrapper
 
 
 def __null_note_message_handler(msg: NoteMessage):

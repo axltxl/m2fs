@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import threading
+
 from .log import log
 from .message import IdMessage
 from .message import TYPE_CC
@@ -7,6 +9,8 @@ from .message import TYPE_CC
 # List of CC handlers (functions)
 __cc_message_handlers = {}
 
+# CC handlers mutex for parallel access
+__cc_message_handlers_mutex = threading.Lock()
 
 # List of all MIDI CCs
 CC_000 = 0x00
@@ -159,7 +163,10 @@ class ControlChangeMessage(IdMessage):
 def get_handler(*, cc):
     """Get a handler for a particular CC"""
 
-    return __cc_message_handlers[cc]
+    global __cc_message_handlers, __cc_message_handlers_mutex
+
+    with __cc_message_handlers_mutex:
+        return __cc_message_handlers[cc]
 
 
 def bootstrap() -> None:
@@ -173,6 +180,8 @@ def bootstrap() -> None:
 def subscribe(*, cc: int, handler):
     """Map a handler to changes done on a CC"""
 
+    global __cc_message_handlers, __cc_message_handlers_mutex
+
     log.debug(f"CC: subscribing handler [CC#{cc}] -> {handler.__name__}")
 
     # Decorator pattern is used mostly
@@ -181,7 +190,8 @@ def subscribe(*, cc: int, handler):
         log.debug(msg)
         handler(msg)
 
-    __cc_message_handlers[cc] = wrapper
+    with __cc_message_handlers_mutex:
+        __cc_message_handlers[cc] = wrapper
 
 
 def __null_cc_message_handler(msg: ControlChangeMessage):
