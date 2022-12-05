@@ -347,6 +347,11 @@ def on_ap_master_change(v):
     ap_on = bool(math.floor(v.value))
 
 
+# FIXME
+def config_reload(m):
+    config.reload()
+
+
 # Proceed to start up the engines
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 config.setup(
@@ -397,5 +402,8 @@ config.setup(
         (AMK2_PAD_09, ap_lnav_toggle),  # LNAV
         (AMK2_PAD_10, ap_vnav_toggle),  # VNAV
         (AMK2_PAD_11, ap_appr_toggle),  # Approach mode
+        # Reload config
+        # ----------------------
+        (AMK2_PAD_02, config_reload),
     ],
 )

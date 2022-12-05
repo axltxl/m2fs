@@ -3,7 +3,6 @@
 import os
 import sys
 import traceback
-import importlib.util
 import signal
 import time
 
@@ -39,6 +38,7 @@ from .midi import (
     message_pump_start as midi_message_pump_start,
     bootstrap as midi_bootstrap,
 )
+from .config import load as config_load
 
 log = Logger(prefix=">> ")
 
@@ -224,28 +224,29 @@ def __cmd_ls() -> None:
     __log_ports(ports["output"])
 
 
-def __load_mod_from_file(config_file: str):
-    """
-    Append configuration file directory to sys.path
+# FIXME
+# def __load_mod_from_file(config_file: str):
+#     """
+#     Append configuration file directory to sys.path
 
-    This will make it possible to import a configuration file
-    set by the user
-    """
+#     This will make it possible to import a configuration file
+#     set by the user
+#     """
 
-    config_file_abs_path = os.path.expanduser(os.path.realpath(config_file))
-    module_name = "usr_config"
+#     config_file_abs_path = os.path.expanduser(os.path.realpath(config_file))
+#     module_name = "usr_config"
 
-    log.debug(f"Attempting to load config module at: {config_file_abs_path}")
+#     log.debug(f"Attempting to load config module at: {config_file_abs_path}")
 
-    spec = importlib.util.spec_from_file_location(module_name, config_file_abs_path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
-    log.info(
-        f"{module_name}@{config_file_abs_path}: config module successfully loaded!"
-    )
+#     spec = importlib.util.spec_from_file_location(module_name, config_file_abs_path)
+#     module = importlib.util.module_from_spec(spec)
+#     sys.modules[module_name] = module
+#     spec.loader.exec_module(module)
+#     log.info(
+#         f"{module_name}@{config_file_abs_path}: config module successfully loaded!"
+#     )
 
-    return module
+#     return module
 
 
 def event_loop(*, config_file: str) -> None:
@@ -259,9 +260,14 @@ def event_loop(*, config_file: str) -> None:
 
     try:
         midi_bootstrap()  # Start the MIDI engine
-        config = __load_mod_from_file(config_file)  # Get config as a module
-        simc_poll_start()  # Start polling for simc changes ... (does not block)
-        midi_message_pump_start()  # Start rolling those MIDI messages
+
+        log.debug(f"Attempting to load config module at: {config_file}")
+        config_load(config_file)  # Get config as a module
+        log.info(f"{config_file}: config module successfully loaded!")
+
+        # FIXME
+        # simc_poll_start()  # Start polling for simc changes ... (does not block)
+        # midi_message_pump_start()  # Start rolling those MIDI messages
 
         # block until exception
         while True:

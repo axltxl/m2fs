@@ -18,10 +18,21 @@ from .backend import (
     SIMCONNECT_BACKEND_MOBIFLIGHT,
 )
 from .mobiflight import SimConnectMobiFlight
+from .poll import poll_reset
 
 
 # SimConnect client
 __smc_client = None
+
+# FIXME
+def reset():
+    # reset SimVar poll
+    poll_reset()
+
+    # disconnect from Simulator
+    # CONTINUEHERE: main client needs a mutex
+    # FIXME: client needs mutex
+    disconnect()
 
 
 def get_client() -> SimConnect.SimConnect:

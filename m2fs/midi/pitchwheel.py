@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import threading
+
 from .log import log
 from .message import BaseMessage
 from .message import TYPE_PITCHWHEEL
 
 
 __pitchwheel_message_handler = None
+
+# FIXME: doc me
+__pitchwheel_message_handler_mutex = threading.Lock()
 
 
 class PitchWheelMessage(BaseMessage):
@@ -26,7 +31,11 @@ class PitchWheelMessage(BaseMessage):
 def get_handler():
     """Get current pitch wheel handler"""
 
-    return __pitchwheel_message_handler
+    global __pitchwheel_message_handler, __pitchwheel_message_handler_mutex
+
+    # FIXME: needs mutex
+    with __pitchwheel_message_handler_mutex:
+        return __pitchwheel_message_handler
 
 
 def bootstrap() -> None:
@@ -38,6 +47,8 @@ def bootstrap() -> None:
 def subscribe(*, handler):
     """Map a handler to pitch wheel changes"""
 
+    global __pitchwheel_message_handler, __pitchwheel_message_handler_mutex
+
     log.debug(f"PITCHWHEEL: subscribing handler -> {handler.__name__}")
 
     # Decorator pattern is used mostly
@@ -46,8 +57,9 @@ def subscribe(*, handler):
         log.debug(msg)
         handler(msg)
 
-    global __pitchwheel_message_handler
-    __pitchwheel_message_handler = wrapper
+    # FIXME: needs mutex
+    with __pitchwheel_message_handler_mutex:
+        __pitchwheel_message_handler = wrapper
 
 
 def __null_pitchwheel_message_handler(msg: PitchWheelMessage):
