@@ -8,6 +8,7 @@ python-rtmidi = "~=1.4"
 mido = "~=1.2"
 simconnect = "~=0.4"
 docopt = "~=0.6"
+colorama = ">=0.4.6, <0.5"
 
 [dev-packages]
 pytest = "~=7.2"
