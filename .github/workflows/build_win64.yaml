@@ -27,20 +27,15 @@ jobs:
 
       - name: Install build toolchain
         run: |
-          python --version
-
           pip install --upgrade pip setuptools build
-          pip install pyinstaller pipenv
+          pip install pipenv
 
           pip --version
           pipenv --version
-          pyinstaller --version
 
       - name: Install dependencies
         run: |
-          pipenv requirements | Out-File requirements.txt
-          pip install -r .\requirements.txt
-          rm .\requirements.txt
+          pipenv install --dev
 
       - name: git tag
         id: git-tag
@@ -50,12 +45,12 @@ jobs:
 
       - name: Build package (setuptools)
         run: |
-          python -m build
+          pipenv run python -m build
 
       - name: Build and try to run executable (pyinstaller)
         run: |
 
-          pyinstaller .\m2fs.spec
+          pipenv run pyinstaller .\m2fs.spec
 
           .\dist\m2fs\m2fs --help
 

@@ -6,8 +6,10 @@
         {
             "label": "python: build",
             "type": "shell",
-            "command": "python",
+            "command": "pipenv",
             "args": [
+                "run",
+                "python",
                 "-m",
                 "build"
             ],
