@@ -14,9 +14,6 @@ colorama = ">=0.4.6, <0.5"
 pytest = "~=7.2"
 black = "*"
 pyinstaller = "~=5.7"
-pip = "*"
-setuptools = "*"
-build = "*"
 
 [requires]
 python_version = "3.10"
