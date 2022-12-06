@@ -8,10 +8,7 @@ import time
 
 from docopt import docopt, DocoptExit
 
-from .dist import (
-    PKG_NAME,
-    PKG_VERSION,
-)
+from .dist import PKG_NAME, PKG_VERSION, PKG_URL
 from .logger import (
     LOG_LVL_VERBOSE,
     LOG_LVL_DEBUG,
@@ -20,6 +17,8 @@ from .logger import (
     LOG_LVL_FATAL,
 )
 from .logger import set_log_level as log_set_log_level
+from .logger import print_to_stdout
+from .logger import LOG_COLOR_FG_YELLOW
 from .simc import (
     SIMCONNECT_BACKEND_DEFAULT,
     SIMCONNECT_BACKEND_MOBIFLIGHT,
@@ -52,6 +51,18 @@ def __handle_signal(signum, frame):
     """
     # Raise a SystemExit exception
     sys.exit(1)
+
+
+def __print_splash():
+    """Print splash title ... for the sake of aesthetics"""
+
+    splash_msg = f"{PKG_NAME} - {PKG_VERSION}"
+    splash_url = PKG_URL
+    splash_line = "-" * len(splash_msg)
+    print_to_stdout(splash_line)
+    print_to_stdout(splash_msg)
+    print_to_stdout(splash_url)
+    print_to_stdout(splash_line)
 
 
 def __handle_except(e):
@@ -128,6 +139,9 @@ def __get_log_level(l: str) -> int:
 
 def main(argv: list[str]) -> int:
     """Main entrypoint"""
+
+    # Print the splash, first of all
+    __print_splash()
 
     try:
         # Parse arguments

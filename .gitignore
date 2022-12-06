@@ -8,3 +8,4 @@ _version.py
 *.spec
 !m2fs.spec
 requirements.txt
+.pytest_cache
