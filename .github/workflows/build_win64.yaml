@@ -27,7 +27,7 @@ jobs:
 
       - name: Install build toolchain
         run: |
-          pip install --upgrade pip
+          pip install --upgrade pip setuptools build
           pip install pipenv
 
           pip --version
@@ -45,7 +45,7 @@ jobs:
 
       - name: Build package (setuptools)
         run: |
-          pipenv run python -m build
+          python -m build
 
       - name: Build and try to run executable (pyinstaller)
         run: |

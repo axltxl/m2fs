@@ -4,12 +4,10 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "python: build",
+            "label": "python: build distributable",
             "type": "shell",
-            "command": "pipenv",
+            "command": "python",
             "args": [
-                "run",
-                "python",
                 "-m",
                 "build"
             ],
