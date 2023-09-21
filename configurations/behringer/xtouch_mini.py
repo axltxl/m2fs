@@ -122,15 +122,19 @@ CONFIG_RELOAD_BT = BT_B_16
 KNOB_MODE = behringer.ENC_MODE_REL_1
 
 # Yaw damper
-YD_TOGGLE_BT = BT_A_12
+YD_TOGGLE_BT = BT_A_01
 
 # Autopilot master
-AP_MASTER_BT = BT_A_13
+AP_MASTER_BT = BT_A_09
 
 # Heading bug (HDG)
 AP_HDG_INCDEC_KNOB = KNOB_A_05
 AP_HDG_SYNC_BT = KNOB_A_BT05
 AP_HDG_MODE_BT = BT_A_05  # heading mode (AP)
+
+# Altitude hold bug (ALT)
+AP_ALT_INCDEC_KNOB = KNOB_A_02
+AP_ALT_BT = BT_A_02
 
 # Barometer bug (BARO)
 BARO_INCDEC_KNOB = KNOB_A_01
@@ -193,21 +197,21 @@ def ap_hdg_toggle(m):
 def ap_alt_incdec(m):
     """AP Altitude bug (+/-)"""
 
-    pass
-    # FIXME
-    # arturia.send_evt_on_encoder_rotation(
-    #     m.value,
-    #     evt_cw=simevents["ap_alt_inc"],
-    #     evt_ccw=simevents["ap_alt_dec"],
-    #     mode=KNOB_MODE,
-    # )
+    behringer.send_event_on_encoder_rotation(
+        m.value,
+        evt_cw="AP_ALT_VAR_INC",
+        evt_ccw="AP_ALT_VAR_DEC",
+        mode=KNOB_MODE,
+    )
 
 
 def ap_alt_toggle(m):
     """Toggle ALT HOLD mode"""
 
     if m.on:
-        simc.send_event(simevents["ap_alt_toggle"])
+        simc.send_event("AP_PANEL_ALTITUDE_ON")
+    else:
+        simc.send_event("AP_PANEL_ALTITUDE_OFF")
 
 
 def ap_vs_toggle(m):
@@ -325,6 +329,8 @@ config.setup(
         (BARO_INCDEC_KNOB, baro1_incdec),  # PFD barometer
         # HDG
         (AP_HDG_INCDEC_KNOB, ap_hdg_incdec),  # HDG bug
+        # ALT
+        (AP_ALT_INCDEC_KNOB, ap_alt_incdec),
     ],
     midi_note_handlers=[
         # FIXME
@@ -339,6 +345,8 @@ config.setup(
         # HDG
         (AP_HDG_SYNC_BT, ap_hdg_set),
         (AP_HDG_MODE_BT, ap_hdg_toggle),  # AP HDG mode toggle
+        # ALT
+        (AP_ALT_BT, ap_alt_toggle),
         # Reload config
         # ----------------------
         (CONFIG_RELOAD_BT, config_reload),
