@@ -121,6 +121,9 @@ CONFIG_RELOAD_BT = BT_B_16
 # Main knob mode (I have chosen Relative 1 for all of my knobs)
 KNOB_MODE = behringer.ENC_MODE_REL_1
 
+# Autopilot master
+AP_MASTER_BT = BT_A_13
+
 # Heading bug (HDG)
 AP_HDG_INCDEC_KNOB = KNOB_A_05
 AP_HDG_SYNC_BT = KNOB_A_BT05
@@ -253,7 +256,9 @@ def ap_toggle(m):
     """Toggle autopilot"""
 
     if m.on:
-        simc.send_event(simevents["ap_toggle"])
+        simc.send_event("AUTOPILOT_ON")
+    else:
+        simc.send_event("AUTOPILOT_OFF")
 
 
 def yawdamper_toggle(m):
@@ -325,6 +330,8 @@ config.setup(
         # FIXME
         # AP Panel handlers
         # ----------------------
+        # AP master
+        (AP_MASTER_BT, ap_toggle),
         # Barometers
         (BARO_STD_BT, baro1_std_push),  # Barometer 1 STD switch
         # HDG
