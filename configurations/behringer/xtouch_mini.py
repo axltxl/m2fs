@@ -18,9 +18,9 @@ from m2fs import config
 
 # MIDI device for this configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-MIDI_PORTS_IN = ["X-TOUCH MINI 0"]  # TODO: change me
+MIDI_PORTS_IN = ["X-TOUCH MINI 0"]
 MIDI_PORT_CHANNEL = 10  # 0-based, so actually 11
-MIDI_PORT_OUT = "X-TOUCH MINI 1"  # FIXME
+MIDI_PORT_OUT = "X-TOUCH MINI 1"
 
 # Some basics  for making life easier
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -136,6 +136,18 @@ AP_HDG_MODE_BT = BT_A_03  # heading mode (AP)
 AP_ALT_INCDEC_KNOB = KNOB_A_02
 AP_ALT_BT = BT_A_02
 
+# A "climb" knob is shared
+# between FLC and VS modes
+AP_CLIMB_KNOB = KNOB_A_04
+
+# "climb mode" variables
+# used to set AP_CLIMB_KNOB
+# correctly depending on whether VS
+# or FLC mode has been engaged
+AP_CLIMB_MODE_FLC = 1
+AP_CLIMB_MODE_VS = 2
+ap_climb_mode = None
+
 # Vertical speed (VS)
 AP_VS_BT = BT_A_04
 
@@ -214,32 +226,49 @@ def ap_alt_toggle(m):
 def ap_vs_toggle(m):
     """Toggle VS mode"""
 
+    global ap_climb_mode
     if m.on:
         simc.send_event("AP_VS_ON")
+        ap_climb_mode = AP_CLIMB_MODE_VS
     else:
         simc.send_event("AP_VS_OFF")
+        ap_climb_mode = None
+
+
+def ap_climb_incdec(m):
+    """
+    This determines what parameter is
+    AP_CLIMB_KNOB going to control
+    """
+
+    if ap_climb_mode is not None:
+        if ap_climb_mode == AP_CLIMB_MODE_FLC:
+            ap_flc_incdec(m)
+        elif ap_climb_mode == AP_CLIMB_MODE_VS:
+            ap_vs_incdec(m)
 
 
 def ap_vs_incdec(m):
     """VS Mode knob (+/-)"""
 
-    pass
-    # FIXME
-    # arturia.send_evt_on_encoder_rotation(
-    #     m.value,
-    #     mode=KNOB_MODE,
-    #     evt_cw=simevents["ap_vs_inc"],
-    #     evt_ccw=simevents["ap_vs_dec"],
-    # )
+    behringer.send_event_on_encoder_rotation(
+        m.value,
+        mode=KNOB_MODE,
+        evt_cw="AP_VS_VAR_INC",
+        evt_ccw="AP_VS_VAR_DEC",
+    )
 
 
 def ap_flc_toggle(m):
     """Toggle FLC mode"""
 
+    global ap_climb_mode
     if m.on:
         simc.send_event("FLIGHT_LEVEL_CHANGE_ON")
+        ap_climb_mode = AP_CLIMB_MODE_FLC
     else:
         simc.send_event("FLIGHT_LEVEL_CHANGE_OFF")
+        ap_climb_mode = None
 
 
 def ap_flc_incdec(m):
@@ -330,9 +359,10 @@ config.setup(
         (AP_HDG_INCDEC_KNOB, ap_hdg_incdec),  # HDG bug
         # ALT
         (AP_ALT_INCDEC_KNOB, ap_alt_incdec),
+        # FLC/VS
+        (AP_CLIMB_KNOB, ap_climb_incdec),
     ],
     midi_note_handlers=[
-        # FIXME
         # AP Panel handlers
         # ----------------------
         # AP master
