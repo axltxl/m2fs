@@ -5,7 +5,6 @@ General MIDI encoder utilities
 
 from . import event
 
-
 def get_rotation(
     value: int,
     range_cw: range,
@@ -19,17 +18,17 @@ def get_rotation(
     """
 
     if value in range_cw:
-        return range_cw.stop - value + 1
+        return 1
     elif value in range_ccw:
-        return -(range_ccw.stop - value + 1)
+        return -1
     return 0
 
 
 def send_event_on_rotation(
-    er: int, # encoder rotation value (must be something returned from a function like get_rotation)
+    er: int,  # encoder rotation value (must be something returned from a function like get_rotation)
     *,
-    evt_cw: int,
-    evt_ccw: int,
+    evt_cw: str,
+    evt_ccw: str,
 ):
     """
     Send event based on encoder rotation
