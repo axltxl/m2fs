@@ -154,21 +154,15 @@ AP_VS_BT = BT_A_04
 # Flight Level Control (FLC)
 AP_FLC_BT = BT_A_12
 
+# NAV
+AP_LNAV_BT = BT_A_10
+
+# APPROACH
+AP_APPR_BT = BT_A_13
+
 # Barometer bug (BARO)
 BARO_INCDEC_KNOB = KNOB_A_01
 BARO_STD_BT = KNOB_A_BT01
-
-
-# SimVars and events used for this aircraft
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# source: https://github.com/MobiFlight/MobiFlight-WASM-Module/blob/main/src/Sources/Code/events.txt#L4641
-# official docs about the Working title Cj4 here:
-# https://www.workingtitle.aero/packages/cj4/guides/simvars
-simevents = {
-    "ap_lnav_toggle": "MobiFlight.WT_CJ4_AP_NAV_PRESSED",
-    "ap_vnav_toggle": "MobiFlight.WT_CJ4_AP_LNAV_PRESSED",
-    "ap_appr_toggle": "MobiFlight.WT_CJ4_AP_APPR_PRESSED",
-}
 
 
 # MIDI CC and NOTE handlers used on this aircraft
@@ -198,9 +192,7 @@ def ap_hdg_toggle(m):
     """Heading mode toggle"""
 
     if m.on:
-        simc.send_event("AP_PANEL_HEADING_ON")
-    else:
-        simc.send_event("AP_PANEL_HEADING_OFF")
+        simc.send_event("AP_PANEL_HEADING_HOLD")
 
 
 def ap_alt_incdec(m):
@@ -218,9 +210,7 @@ def ap_alt_toggle(m):
     """Toggle ALT HOLD mode"""
 
     if m.on:
-        simc.send_event("AP_PANEL_ALTITUDE_ON")
-    else:
-        simc.send_event("AP_PANEL_ALTITUDE_OFF")
+        simc.send_event("AP_PANEL_ALTITUDE_HOLD")
 
 
 def ap_vs_toggle(m):
@@ -228,11 +218,8 @@ def ap_vs_toggle(m):
 
     global ap_climb_mode
     if m.on:
-        simc.send_event("AP_VS_ON")
+        simc.send_event("AP_VS_HOLD")
         ap_climb_mode = AP_CLIMB_MODE_VS
-    else:
-        simc.send_event("AP_VS_OFF")
-        ap_climb_mode = None
 
 
 def ap_climb_incdec(m):
@@ -264,11 +251,8 @@ def ap_flc_toggle(m):
 
     global ap_climb_mode
     if m.on:
-        simc.send_event("FLIGHT_LEVEL_CHANGE_ON")
+        simc.send_event("FLIGHT_LEVEL_CHANGE")
         ap_climb_mode = AP_CLIMB_MODE_FLC
-    else:
-        simc.send_event("FLIGHT_LEVEL_CHANGE_OFF")
-        ap_climb_mode = None
 
 
 def ap_flc_incdec(m):
@@ -286,39 +270,28 @@ def ap_toggle(m):
     """Toggle autopilot"""
 
     if m.on:
-        simc.send_event("AUTOPILOT_ON")
-    else:
-        simc.send_event("AUTOPILOT_OFF")
+        simc.send_event("AP_MASTER")
 
 
 def yawdamper_toggle(m):
     """Toggle yaw damper"""
 
     if m.on:
-        simc.send_event("YAW_DAMPER_ON")
-    else:
-        simc.send_event("YAW_DAMPER_OFF")
+        simc.send_event("YAW_DAMPER_TOGGLE")
 
 
 def ap_lnav_toggle(m):
     """Toggle LNAV mode"""
 
     if m.on:
-        simc.send_event(simevents["ap_lnav_toggle"])
-
-
-def ap_vnav_toggle(m):
-    """Toggle VNAV mode"""
-
-    if m.on:
-        simc.send_event(simevents["ap_vnav_toggle"])
+        simc.send_event("AP_NAV1_HOLD")
 
 
 def ap_appr_toggle(m):
     """Toggle APPROACH mode"""
 
     if m.on:
-        simc.send_event(simevents["ap_appr_toggle"])
+        simc.send_event("AP_APR_HOLD")
 
 
 def baro1_std_push(m):
@@ -380,6 +353,10 @@ config.setup(
         (AP_VS_BT, ap_vs_toggle),
         # FLC
         (AP_FLC_BT, ap_flc_toggle),
+        # NAV
+        (AP_LNAV_BT, ap_lnav_toggle),
+        # APPROACH
+        (AP_APPR_BT, ap_appr_toggle),
         # Reload config
         # ----------------------
         (CONFIG_RELOAD_BT, config_reload),
