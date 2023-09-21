@@ -121,6 +121,9 @@ CONFIG_RELOAD_BT = BT_B_16
 # Main knob mode (I have chosen Relative 1 for all of my knobs)
 KNOB_MODE = behringer.ENC_MODE_REL_1
 
+# Yaw damper
+YD_TOGGLE_BT = BT_A_12
+
 # Autopilot master
 AP_MASTER_BT = BT_A_13
 
@@ -140,7 +143,6 @@ BARO_STD_BT = KNOB_A_BT01
 # official docs about the Working title Cj4 here:
 # https://www.workingtitle.aero/packages/cj4/guides/simvars
 simevents = {
-    "ap_toggle": "AP_MASTER",
     "ap_alt_inc": "AP_ALT_VAR_INC",
     "ap_alt_dec": "AP_ALT_VAR_DEC",
     "ap_alt_toggle": "MobiFlight.WT_CJ4_AP_ALT_PRESSED",
@@ -150,13 +152,9 @@ simevents = {
     "ap_flc_toggle": "MobiFlight.WT_CJ4_AP_FLC_PRESSED",
     "ap_flc_inc": "AP_SPD_VAR_INC",
     "ap_flc_dec": "AP_SPD_VAR_DEC",
-    "yawdamper_toggle": "YAWDAMPER_TOGGLE",
     "ap_lnav_toggle": "MobiFlight.WT_CJ4_AP_NAV_PRESSED",
     "ap_vnav_toggle": "MobiFlight.WT_CJ4_AP_LNAV_PRESSED",
     "ap_appr_toggle": "MobiFlight.WT_CJ4_AP_APPR_PRESSED",
-    "baro1_inc": "KOHLSMAN_INC",
-    "baro1_dec": "KOHLSMAN_DEC",
-    "baro1_std_push": "BAROMETRIC_STD_PRESSURE",
 }
 
 
@@ -265,7 +263,9 @@ def yawdamper_toggle(m):
     """Toggle yaw damper"""
 
     if m.on:
-        simc.send_event(simevents["yawdamper_toggle"])
+        simc.send_event("YAW_DAMPER_ON")
+    else:
+        simc.send_event("YAW_DAMPER_OFF")
 
 
 def ap_lnav_toggle(m):
@@ -332,6 +332,8 @@ config.setup(
         # ----------------------
         # AP master
         (AP_MASTER_BT, ap_toggle),
+        # Yaw damper
+        (YD_TOGGLE_BT, yawdamper_toggle),
         # Barometers
         (BARO_STD_BT, baro1_std_push),  # Barometer 1 STD switch
         # HDG
