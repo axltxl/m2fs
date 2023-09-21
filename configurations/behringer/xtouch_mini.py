@@ -128,13 +128,19 @@ YD_TOGGLE_BT = BT_A_01
 AP_MASTER_BT = BT_A_09
 
 # Heading bug (HDG)
-AP_HDG_INCDEC_KNOB = KNOB_A_05
-AP_HDG_SYNC_BT = KNOB_A_BT05
-AP_HDG_MODE_BT = BT_A_05  # heading mode (AP)
+AP_HDG_INCDEC_KNOB = KNOB_A_03
+AP_HDG_SYNC_BT = KNOB_A_BT03
+AP_HDG_MODE_BT = BT_A_03  # heading mode (AP)
 
 # Altitude hold bug (ALT)
 AP_ALT_INCDEC_KNOB = KNOB_A_02
 AP_ALT_BT = BT_A_02
+
+# Vertical speed (VS)
+AP_VS_BT = BT_A_04
+
+# Flight Level Control (FLC)
+AP_FLC_BT = BT_A_12
 
 # Barometer bug (BARO)
 BARO_INCDEC_KNOB = KNOB_A_01
@@ -147,15 +153,6 @@ BARO_STD_BT = KNOB_A_BT01
 # official docs about the Working title Cj4 here:
 # https://www.workingtitle.aero/packages/cj4/guides/simvars
 simevents = {
-    "ap_alt_inc": "AP_ALT_VAR_INC",
-    "ap_alt_dec": "AP_ALT_VAR_DEC",
-    "ap_alt_toggle": "MobiFlight.WT_CJ4_AP_ALT_PRESSED",
-    "ap_vs_toggle": "MobiFlight.WT_CJ4_AP_VS_PRESSED",
-    "ap_vs_inc": "MobiFlight.WT_CJ4_AP_VS_INC",
-    "ap_vs_dec": "MobiFlight.WT_CJ4_AP_VS_DEC",
-    "ap_flc_toggle": "MobiFlight.WT_CJ4_AP_FLC_PRESSED",
-    "ap_flc_inc": "AP_SPD_VAR_INC",
-    "ap_flc_dec": "AP_SPD_VAR_DEC",
     "ap_lnav_toggle": "MobiFlight.WT_CJ4_AP_NAV_PRESSED",
     "ap_vnav_toggle": "MobiFlight.WT_CJ4_AP_LNAV_PRESSED",
     "ap_appr_toggle": "MobiFlight.WT_CJ4_AP_APPR_PRESSED",
@@ -218,7 +215,9 @@ def ap_vs_toggle(m):
     """Toggle VS mode"""
 
     if m.on:
-        simc.send_event(simevents["ap_vs_toggle"])
+        simc.send_event("AP_VS_ON")
+    else:
+        simc.send_event("AP_VS_OFF")
 
 
 def ap_vs_incdec(m):
@@ -235,23 +234,23 @@ def ap_vs_incdec(m):
 
 
 def ap_flc_toggle(m):
-    """Toggle flc mode"""
+    """Toggle FLC mode"""
 
     if m.on:
-        simc.send_event(simevents["ap_flc_toggle"])
+        simc.send_event("FLIGHT_LEVEL_CHANGE_ON")
+    else:
+        simc.send_event("FLIGHT_LEVEL_CHANGE_OFF")
 
 
 def ap_flc_incdec(m):
-    """flc Mode knob (+/-)"""
+    """FLC Mode knob (+/-)"""
 
-    pass
-    # FIXME
-    # arturia.send_evt_on_encoder_rotation(
-    #     m.value,
-    #     mode=KNOB_MODE,
-    #     evt_cw=simevents["ap_flc_inc"],
-    #     evt_ccw=simevents["ap_flc_dec"],
-    # )
+    behringer.send_event_on_encoder_rotation(
+        m.value,
+        mode=KNOB_MODE,
+        evt_cw="AP_SPD_VAR_INC",
+        evt_ccw="AP_SPD_VAR_DEC",
+    )
 
 
 def ap_toggle(m):
@@ -347,6 +346,10 @@ config.setup(
         (AP_HDG_MODE_BT, ap_hdg_toggle),  # AP HDG mode toggle
         # ALT
         (AP_ALT_BT, ap_alt_toggle),
+        # VS
+        (AP_VS_BT, ap_vs_toggle),
+        # FLC
+        (AP_FLC_BT, ap_flc_toggle),
         # Reload config
         # ----------------------
         (CONFIG_RELOAD_BT, config_reload),
