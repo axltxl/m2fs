@@ -118,10 +118,11 @@
             "description": "Configuration file",
             "type": "pickString",
             "options": [
-                "${workspaceFolder}/examples/generic.py",
-                "${workspaceFolder}/examples/arturia/minilab_mk2/wt_cj4_config.py"
+                "${workspaceFolder}/generic/config.py",
+                "${workspaceFolder}/configurations/behringer/xtouch_mini.py",
+                "${workspaceFolder}/configurations/deprecated/arturia/minilab_mk2/wt_cj4_config.py"
             ],
-            "default": "${workspaceFolder}/examples/arturia/minilab_mk2/wt_cj4_config.py",
+            "default": "${workspaceFolder}/configurations/behringer/xtouch_mini.py",
         }
     ]
 }
