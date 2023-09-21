@@ -138,10 +138,6 @@ BARO_STD_BT = KNOB_A_BT01
 # https://www.workingtitle.aero/packages/cj4/guides/simvars
 simevents = {
     "ap_toggle": "AP_MASTER",
-    "ap_hdg_inc": "HEADING_BUG_INC",
-    "ap_hdg_dec": "HEADING_BUG_DEC",
-    "ap_hdg_sync": "HEADING_BUG_SET",
-    "ap_hdg_toggle": "MobiFlight.WT_CJ4_AP_HDG_PRESSED",
     "ap_alt_inc": "AP_ALT_VAR_INC",
     "ap_alt_dec": "AP_ALT_VAR_DEC",
     "ap_alt_toggle": "MobiFlight.WT_CJ4_AP_ALT_PRESSED",
@@ -170,8 +166,8 @@ def ap_hdg_incdec(m):
 
     behringer.send_event_on_encoder_rotation(
         m.value,
-        evt_cw=simevents["ap_hdg_inc"],
-        evt_ccw=simevents["ap_hdg_dec"],
+        evt_cw="HEADING_BUG_INC",
+        evt_ccw="HEADING_BUG_DEC",
         mode=KNOB_MODE,
     )
 
@@ -188,7 +184,9 @@ def ap_hdg_toggle(m):
     """Heading mode toggle"""
 
     if m.on:
-        simc.send_event(simevents["ap_hdg_toggle"])
+        simc.send_event("AP_PANEL_HEADING_ON")
+    else:
+        simc.send_event("AP_PANEL_HEADING_OFF")
 
 
 def ap_alt_incdec(m):
@@ -290,7 +288,7 @@ def baro1_std_push(m):
     """Barometer 1 push (set to STD)"""
 
     if m.on:
-        simc.send_event(simevents["baro1_std_push"])
+        simc.send_event("BAROMETRIC_STD_PRESSURE")
 
 
 def baro1_incdec(m):
@@ -299,8 +297,8 @@ def baro1_incdec(m):
     behringer.send_event_on_encoder_rotation(
         m.value,
         mode=KNOB_MODE,
-        evt_cw=simevents["baro1_inc"],
-        evt_ccw=simevents["baro1_dec"],
+        evt_cw="KOHLSMAN_INC",
+        evt_ccw="KOHLSMAN_DEC",
     )
 
 
