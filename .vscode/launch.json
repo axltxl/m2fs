@@ -118,9 +118,10 @@
             "description": "Configuration file",
             "type": "pickString",
             "options": [
-                "${workspaceFolder}/generic/config.py",
-                "${workspaceFolder}/configurations/behringer/xtouch_mini.py",
-                "${workspaceFolder}/configurations/deprecated/arturia/minilab_mk2/wt_cj4_config.py"
+                "${workspaceFolder}/configurations/behringer/xtouch_mini/airbus_a20n.py",
+                "${workspaceFolder}/configurations/behringer/xtouch_mini/cessna_c25c.py",
+                "${workspaceFolder}/configurations/deprecated/arturia/minilab_mk2/wt_cj4_config.py""${workspaceFolder}/generic/config.py",
+                "${workspaceFolder}/generic/config.py"
             ],
             "default": "${workspaceFolder}/configurations/behringer/xtouch_mini.py",
         }

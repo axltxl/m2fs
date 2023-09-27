@@ -3,10 +3,12 @@
 m2fs configuration file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-MIDI controller:    Behringer X-Touch Mini
-Aircraft:           Cessna Citation CJ4 (AAU1)
-SimConnect backend: MobiFlight-SimConnect
-Preset file for MIDI controller: m2fs.minilabmk2
+MIDI controller:
+    - Behringer X-Touch Mini
+Aircraft: Cessna Citation CJ4 (AAU1)
+Preset files for MIDI controller:
+    - Layer A -> LayerA.bin
+    - Layer B -> LayerB.bin
 """
 
 import math
@@ -20,7 +22,6 @@ from m2fs import config
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 MIDI_PORTS_IN = ["X-TOUCH MINI 0"]
 MIDI_PORT_CHANNEL = 10  # 0-based, so actually 11
-MIDI_PORT_OUT = "X-TOUCH MINI 1"
 
 # Some basics  for making life easier
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,6 +70,9 @@ BT_A_14 = midi.NOTE_021
 BT_A_15 = midi.NOTE_022
 BT_A_16 = midi.NOTE_023
 
+# slider
+SLIDER_A = midi.CC_009
+
 # Layer B
 # -------
 
@@ -110,6 +114,9 @@ BT_B_14 = midi.NOTE_045
 BT_B_15 = midi.NOTE_046
 BT_B_16 = midi.NOTE_047
 
+# slider
+SLIDER_B = midi.CC_010
+
 #############################
 # Easy logical bindings
 # so I don't have to hardcode
@@ -124,6 +131,9 @@ KNOB_MODE = behringer.ENC_MODE_REL_1
 # Yaw damper
 YD_TOGGLE_BT = BT_A_01
 
+# Elevator trim
+ELEVATOR_TRIM_SLIDER = SLIDER_A
+
 # Autopilot master
 AP_MASTER_BT = BT_A_09
 
@@ -136,29 +146,19 @@ AP_HDG_MODE_BT = BT_A_03  # heading mode (AP)
 AP_ALT_INCDEC_KNOB = KNOB_A_02
 AP_ALT_BT = BT_A_02
 
-# A "climb" knob is shared
-# between FLC and VS modes
-AP_CLIMB_KNOB = KNOB_A_04
-
-# "climb mode" variables
-# used to set AP_CLIMB_KNOB
-# correctly depending on whether VS
-# or FLC mode has been engaged
-AP_CLIMB_MODE_FLC = 1
-AP_CLIMB_MODE_VS = 2
-ap_climb_mode = None
-
 # Vertical speed (VS)
+AP_VS_INCDEC_KNOB = KNOB_A_04
 AP_VS_BT = BT_A_04
 
 # Flight Level Control (FLC)
-AP_FLC_BT = BT_A_12
+AP_FLC_INCDEC_KNOB = KNOB_A_05
+AP_FLC_BT = BT_A_05
 
 # NAV
-AP_LNAV_BT = BT_A_10
+AP_LNAV_BT = BT_A_11
 
 # APPROACH
-AP_APPR_BT = BT_A_13
+AP_APPR_BT = BT_A_16
 
 # Barometer bug (BARO)
 BARO_INCDEC_KNOB = KNOB_A_01
@@ -167,6 +167,22 @@ BARO_STD_BT = KNOB_A_BT01
 
 # MIDI CC and NOTE handlers used on this aircraft
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+def elevator_trim_set(m):
+    """Set elevator trim set"""
+
+    # https://stackoverflow.com/questions/20766813/how-to-convert-signed-to-unsigned-integer-in-python
+    # FIXME: move me
+    ELEVATOR_TRIM_MIN = -16383
+    ELEVATOR_TRIM_MAX = 16384
+    ELEVATOR_TRIM_RANGE = abs(ELEVATOR_TRIM_MIN) + abs(ELEVATOR_TRIM_MAX) + 1
+    ELEVATOR_TRIM_STEP = ELEVATOR_TRIM_RANGE / 128
+
+    steps = m.value * ELEVATOR_TRIM_STEP
+    trim = int(ELEVATOR_TRIM_MIN + steps)
+
+    simc.send_event("ELEVATOR_TRIM_SET", trim)
 
 
 def ap_hdg_incdec(m):
@@ -216,23 +232,8 @@ def ap_alt_toggle(m):
 def ap_vs_toggle(m):
     """Toggle VS mode"""
 
-    global ap_climb_mode
     if m.on:
         simc.send_event("AP_VS_HOLD")
-        ap_climb_mode = AP_CLIMB_MODE_VS
-
-
-def ap_climb_incdec(m):
-    """
-    This determines what parameter is
-    AP_CLIMB_KNOB going to control
-    """
-
-    if ap_climb_mode is not None:
-        if ap_climb_mode == AP_CLIMB_MODE_FLC:
-            ap_flc_incdec(m)
-        elif ap_climb_mode == AP_CLIMB_MODE_VS:
-            ap_vs_incdec(m)
 
 
 def ap_vs_incdec(m):
@@ -249,10 +250,8 @@ def ap_vs_incdec(m):
 def ap_flc_toggle(m):
     """Toggle FLC mode"""
 
-    global ap_climb_mode
     if m.on:
         simc.send_event("FLIGHT_LEVEL_CHANGE")
-        ap_climb_mode = AP_CLIMB_MODE_FLC
 
 
 def ap_flc_incdec(m):
@@ -285,6 +284,14 @@ def ap_lnav_toggle(m):
 
     if m.on:
         simc.send_event("AP_NAV1_HOLD")
+
+
+# FIXME: doesn't work
+# def ap_vnav_toggle(m):
+#     """Toggle VNAV mode"""
+
+#     if m.on:
+#         simc.send_event("GPS_VNAV_BUTTON")
 
 
 def ap_appr_toggle(m):
@@ -332,8 +339,13 @@ config.setup(
         (AP_HDG_INCDEC_KNOB, ap_hdg_incdec),  # HDG bug
         # ALT
         (AP_ALT_INCDEC_KNOB, ap_alt_incdec),
-        # FLC/VS
-        (AP_CLIMB_KNOB, ap_climb_incdec),
+        # VS
+        (AP_VS_INCDEC_KNOB, ap_vs_incdec),
+        # FLC
+        (AP_FLC_INCDEC_KNOB, ap_flc_incdec),
+        # Other things
+        # ----------------------
+        (ELEVATOR_TRIM_SLIDER, elevator_trim_set),
     ],
     midi_note_handlers=[
         # AP Panel handlers
